@@ -20,10 +20,19 @@ namespace Server.Services
 
             if (container.IsCleared)
             {
-                // Assign to a Bay (e.g., Green Lane preferred)
-                // Simplified Logic: Find first available Bay
-                assignedLocation = await _context.Bays
-                    .FirstOrDefaultAsync(b => !b.IsOccupied);
+                // Scenario A: Check if a specific bay was requested
+                if (container.PreferredBayNumber.HasValue)
+                {
+                    assignedLocation = await _context.Bays
+                        .FirstOrDefaultAsync(b => b.BayNumber == container.PreferredBayNumber.Value && !b.IsOccupied);
+                }
+
+                // If no specific bay requested OR requested bay was occupied/not found, auto-assign
+                if (assignedLocation == null)
+                {
+                    assignedLocation = await _context.Bays
+                        .FirstOrDefaultAsync(b => !b.IsOccupied);
+                }
             }
             else
             {
@@ -65,6 +74,31 @@ namespace Server.Services
                 Bays = new { Total = totalBays, Occupied = occupiedBays, Available = totalBays - occupiedBays },
                 Stacks = new { Total = totalStacks, Occupied = occupiedStacks, Available = totalStacks - occupiedStacks }
             };
+        }
+
+        public async Task<IEnumerable<Bay>> GetBaysAsync()
+        {
+            return await _context.Bays.OrderBy(b => b.BayNumber).ToListAsync();
+        }
+
+        public async Task<bool> ReleaseBayAsync(int bayNumber)
+        {
+            var bay = await _context.Bays.FirstOrDefaultAsync(b => b.BayNumber == bayNumber);
+            if (bay == null || !bay.IsOccupied) return false;
+
+            bay.IsOccupied = false;
+            
+            // Also update any container currently in this location? 
+            // For now, simpler to just free the bay. Real world would require moving the container record too.
+            var container = await _context.Containers.FirstOrDefaultAsync(c => c.CurrentLocationId == bay.LocationId);
+            if (container != null)
+            {
+                container.CurrentLocationId = null; // Remove from bay
+                container.CurrentStatus = "Departed"; // Or returned to stack? Assuming Departed for this workflow.
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

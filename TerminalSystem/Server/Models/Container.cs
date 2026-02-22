@@ -22,5 +22,8 @@ namespace Server.Models
         public virtual YardLocation? CurrentLocation { get; set; }
 
         public virtual ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
+
+        [NotMapped]
+        public int? PreferredBayNumber { get; set; }
     }
 }

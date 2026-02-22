@@ -1,24 +1,35 @@
-# Logs
-logs
-*.log
+# --- .NET / C# (Backend) ---
+bin/
+obj/
+.vs/
+*.user
+*.pdb
+*.dll
+appsettings.Development.json
+
+# --- React / Node (Frontend) ---
+node_modules/
+dist/
+build/
+.env
+.DS_Store
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# --- Database (Keep local only) ---
+*.db
+*.sqlite
+*.mdf
+*.ldf
 
-# Editor directories and files
+# --- Editor Junk ---
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
+
+# IMPORTANT: Do NOT ignore the solution file!
+# *.sln  <-- I removed this so your project structure uploads correctly
