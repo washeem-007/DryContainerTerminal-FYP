@@ -7,7 +7,8 @@ import { Box, Layers, Activity, Truck, Search, Bell, Settings } from 'lucide-rea
 const Dashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
-        bays: { total: 0, occupied: 0, available: 0 },
+        weighBays: { total: 0, occupied: 0, available: 0 },
+        inspectionBays: { total: 0, occupied: 0, available: 0 },
         stacks: { total: 0, occupied: 0, available: 0 }
     });
     const [loading, setLoading] = useState(true);
@@ -19,7 +20,16 @@ const Dashboard = () => {
                 const response = await fetch('http://localhost:5047/api/Yard/dashboard');
                 if (response.ok) {
                     const data = await response.json();
-                    setStats(data);
+
+                    // The API returns PascalCase properties (WeighBays, InspectionBays, Stacks)
+                    // We need to map them to our lowercase state keys if we use lowercase, 
+                    // or just use them directly if we assume case-insensitive or map exactly.
+                    // Assuming the API returns lowercase or we map it:
+                    setStats({
+                        weighBays: data.weighBays || data.WeighBays,
+                        inspectionBays: data.inspectionBays || data.InspectionBays,
+                        stacks: data.stacks || data.Stacks
+                    });
                 }
             } catch (error) {
                 console.error('Failed to fetch stats:', error);
@@ -31,15 +41,15 @@ const Dashboard = () => {
         fetchStats();
     }, []);
 
-    const totalContainers = stats.bays.occupied + stats.stacks.occupied;
-    const bayOccupancy = stats.bays.total > 0 ? Math.round((stats.bays.occupied / stats.bays.total) * 100) : 0;
+    const totalContainers = stats.weighBays.occupied + stats.inspectionBays.occupied + stats.stacks.occupied;
+    const bayOccupancy = stats.inspectionBays.total > 0 ? Math.round((stats.inspectionBays.occupied / stats.inspectionBays.total) * 100) : 0;
     const stackUtilization = stats.stacks.total > 0 ? Math.round((stats.stacks.occupied / stats.stacks.total) * 100) : 0;
-    const availableSlots = stats.bays.available + stats.stacks.available;
+    const availableSlots = stats.inspectionBays.available + stats.stacks.available;
 
-    // Charts Data
+    // Charts Data (Using Inspection Bays for the chart as they are the primary storage bays)
     const bayData = [
-        { name: 'Occupied', value: stats.bays.occupied },
-        { name: 'Available', value: stats.bays.available }
+        { name: 'Occupied', value: stats.inspectionBays.occupied },
+        { name: 'Available', value: stats.inspectionBays.available }
     ];
     const COLORS = ['#2563EB', '#E5E7EB']; // Blue-600, Gray-200
 
@@ -130,9 +140,6 @@ const Dashboard = () => {
 
                 {/* Quick Links */}
                 <div className="flex gap-4 mb-8">
-                    <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                        Summary of Containers Inside the Port
-                    </button>
                     <button
                         onClick={() => navigate('/weigh-bays')}
                         className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -143,7 +150,7 @@ const Dashboard = () => {
                         onClick={() => navigate('/storage-bays')}
                         className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
-                        Stack Availability
+                        Inspection Bay Availability
                     </button>
                 </div>
 
@@ -157,7 +164,7 @@ const Dashboard = () => {
                         icon={Box}
                     />
                     <StatCard
-                        title="Bays Occupied"
+                        title="Inspection Bays Occupied"
                         value={`${bayOccupancy}%`}
                         change="+2% last week"
                         changeType="positive"
@@ -182,7 +189,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Bay Utilization Chart */}
                     <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-6">Bay Utilization</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-6">Inspection Bay Utilization</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>

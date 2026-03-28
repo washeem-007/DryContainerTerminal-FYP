@@ -31,7 +31,7 @@ namespace Server.Services
                 if (assignedLocation == null)
                 {
                     assignedLocation = await _context.Bays
-                        .FirstOrDefaultAsync(b => !b.IsOccupied);
+                        .FirstOrDefaultAsync(b => b.BayType == "Inspection" && !b.IsOccupied);
                 }
             }
             else
@@ -63,22 +63,29 @@ namespace Server.Services
 
         public async Task<object> GetYardSummaryAsync()
         {
-            var totalBays = await _context.Bays.CountAsync();
-            var occupiedBays = await _context.Bays.CountAsync(b => b.IsOccupied);
+            var weighBaysTotal = await _context.Bays.CountAsync(b => b.BayType == "Weigh");
+            var weighBaysOccupied = await _context.Bays.CountAsync(b => b.BayType == "Weigh" && b.IsOccupied);
+
+            var inspectionBaysTotal = await _context.Bays.CountAsync(b => b.BayType == "Inspection");
+            var inspectionBaysOccupied = await _context.Bays.CountAsync(b => b.BayType == "Inspection" && b.IsOccupied);
             
             var totalStacks = await _context.Stacks.CountAsync();
             var occupiedStacks = await _context.Stacks.CountAsync(s => s.IsOccupied);
 
             return new
             {
-                Bays = new { Total = totalBays, Occupied = occupiedBays, Available = totalBays - occupiedBays },
+                WeighBays = new { Total = weighBaysTotal, Occupied = weighBaysOccupied, Available = weighBaysTotal - weighBaysOccupied },
+                InspectionBays = new { Total = inspectionBaysTotal, Occupied = inspectionBaysOccupied, Available = inspectionBaysTotal - inspectionBaysOccupied },
                 Stacks = new { Total = totalStacks, Occupied = occupiedStacks, Available = totalStacks - occupiedStacks }
             };
         }
 
         public async Task<IEnumerable<Bay>> GetBaysAsync()
         {
-            return await _context.Bays.OrderBy(b => b.BayNumber).ToListAsync();
+            return await _context.Bays
+                .Where(b => b.BayType == "Inspection")
+                .OrderBy(b => b.BayNumber)
+                .ToListAsync();
         }
 
         public async Task<bool> ReleaseBayAsync(int bayNumber)

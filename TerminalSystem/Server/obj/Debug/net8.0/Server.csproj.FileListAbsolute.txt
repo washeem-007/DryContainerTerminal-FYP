@@ -161,3 +161,4 @@ F:\Semester 3\FYP\Dry Container Terminal\TerminalSystem\Server\bin\Debug\net8.0\
 F:\Semester 3\FYP\Dry Container Terminal\TerminalSystem\Server\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll
 F:\Semester 3\FYP\Dry Container Terminal\TerminalSystem\Server\bin\Debug\net8.0\runtimes\win-x86\native\e_sqlite3.dll
 F:\Semester 3\FYP\Dry Container Terminal\TerminalSystem\Server\obj\Debug\net8.0\Server.sourcelink.json
+F:\Semester 3\FYP\Dry Container Terminal\TerminalSystem\Server\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
