@@ -22,9 +22,9 @@ namespace Server.Controllers
         }
 
         [HttpGet("bays")]
-        public async Task<ActionResult<IEnumerable<Bay>>> GetBays()
+        public async Task<ActionResult<IEnumerable<Bay>>> GetBays([FromQuery] string? type = null)
         {
-            return Ok(await _yardService.GetBaysAsync());
+            return Ok(await _yardService.GetBaysAsync(type));
         }
 
         [HttpGet("stacks")]

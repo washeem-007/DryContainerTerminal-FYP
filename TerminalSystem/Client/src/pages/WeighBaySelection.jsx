@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, X } from 'lucide-react';
+import api from '../utils/axiosConfig';
 
 const WeighBaySelection = () => {
     const navigate = useNavigate();
-    // Hardcoded mock data for drive-through weigh bays (Transient)
-    const bays = [
-        { id: 1, status: 'Available' },
-        { id: 2, status: 'Occupied' }, // Simulated occupied
-        { id: 3, status: 'Available' },
-        { id: 4, status: 'Occupied' }, // Simulated occupied
-        { id: 5, status: 'Available' },
-        { id: 6, status: 'Available' },
-    ];
+    const [bays, setBays] = useState([]);
+
+    useEffect(() => {
+        const fetchBays = async () => {
+            try {
+                const response = await api.get('/yard/bays?type=Weigh');
+                const mappedBays = response.data.map(b => ({
+                    id: b.bayNumber,
+                    status: b.isOccupied ? 'Occupied' : 'Available',
+                    isOccupied: b.isOccupied
+                }));
+                // We trust the database mapping exclusively and do not mock
+                setBays(mappedBays);
+            } catch (error) {
+                console.error("Failed to fetch weigh bays:", error);
+            }
+        };
+        fetchBays();
+    }, []);
 
     const handleBayClick = (bay) => {
         if (bay.status === 'Available') {

@@ -15,31 +15,28 @@ namespace Server.Services
 
         public async Task<bool> DecideStorageLocationAsync(Container container)
         {
-            // Scenario A: Auto-assign based on clearance
             YardLocation? assignedLocation = null;
 
-            if (container.IsCleared)
+            // 1. Honor PreferredBayNumber if available
+            if (container.PreferredBayNumber.HasValue)
             {
-                // Scenario A: Check if a specific bay was requested
-                if (container.PreferredBayNumber.HasValue)
-                {
-                    assignedLocation = await _context.Bays
-                        .FirstOrDefaultAsync(b => b.BayNumber == container.PreferredBayNumber.Value && !b.IsOccupied);
-                }
+                assignedLocation = await _context.Bays
+                    .FirstOrDefaultAsync(b => b.BayNumber == container.PreferredBayNumber.Value && !b.IsOccupied);
+            }
 
-                // If no specific bay requested OR requested bay was occupied/not found, auto-assign
-                if (assignedLocation == null)
+            // 2. Fallbacks if no preferred bay provided or it was full
+            if (assignedLocation == null)
+            {
+                if (container.IsCleared)
                 {
                     assignedLocation = await _context.Bays
                         .FirstOrDefaultAsync(b => b.BayType == "Inspection" && !b.IsOccupied);
                 }
-            }
-            else
-            {
-                // Assign to a Stack
-                // Simplified Logic: Find first available Stack
-                assignedLocation = await _context.Stacks
-                    .FirstOrDefaultAsync(s => !s.IsOccupied); // In real world, check capacity vs current tier
+                else
+                {
+                    assignedLocation = await _context.Stacks
+                        .FirstOrDefaultAsync(s => !s.IsOccupied); 
+                }
             }
 
             if (assignedLocation != null)
@@ -80,10 +77,14 @@ namespace Server.Services
             };
         }
 
-        public async Task<IEnumerable<Bay>> GetBaysAsync()
+        public async Task<IEnumerable<Bay>> GetBaysAsync(string? bayType = null)
         {
-            return await _context.Bays
-                .Where(b => b.BayType == "Inspection")
+            var query = _context.Bays.AsQueryable();
+            if (!string.IsNullOrEmpty(bayType))
+            {
+                query = query.Where(b => b.BayType == bayType);
+            }
+            return await query
                 .OrderBy(b => b.BayNumber)
                 .ToListAsync();
         }

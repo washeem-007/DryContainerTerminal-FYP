@@ -19,7 +19,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
     return (
         <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col h-full">
             <div className="text-sm font-bold text-gray-800 mb-2">Bay {bay.bayNumber}</div>
-            
+
             {isOccupied ? (
                 <div className="text-2xl font-bold text-gray-900 text-center mb-6">
                     {bay.containerId}
@@ -33,7 +33,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
             <div className={`space-y-4 flex-1 ${!isOccupied ? 'opacity-50 pointer-events-none' : ''}`}>
                 <div>
                     <label className="block text-xs font-semibold text-gray-800 mb-1">Custom Officer Name</label>
-                    <select 
+                    <select
                         name="customOfficer"
                         value={formData.customOfficer}
                         onChange={handleChange}
@@ -47,7 +47,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
 
                 <div>
                     <label className="block text-xs font-semibold text-gray-800 mb-1">Inspection Type</label>
-                    <select 
+                    <select
                         name="inspectionType"
                         value={formData.inspectionType}
                         onChange={handleChange}
@@ -61,7 +61,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
 
                 <div>
                     <label className="block text-xs font-semibold text-gray-800 mb-1">Additional Charges</label>
-                    <input 
+                    <input
                         type="number"
                         name="additionalCharges"
                         value={formData.additionalCharges}
@@ -73,7 +73,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
 
                 <div>
                     <label className="block text-xs font-semibold text-gray-800 mb-1">Wharf Clerk ID</label>
-                    <select 
+                    <select
                         name="wharfClerkId"
                         value={formData.wharfClerkId}
                         onChange={handleChange}
@@ -87,7 +87,7 @@ const InspectionCard = ({ bay, submitInspection }) => {
 
                 <div>
                     <label className="block text-xs font-semibold text-gray-800 mb-1">Wharf Clerk Name</label>
-                    <input 
+                    <input
                         type="text"
                         name="wharfClerkName"
                         value={formData.wharfClerkName}
@@ -100,21 +100,21 @@ const InspectionCard = ({ bay, submitInspection }) => {
             </div>
 
             <div className="mt-6 flex gap-3">
-                <button 
+                <button
                     disabled={!isOccupied}
                     onClick={() => submitInspection(bay, formData, 'Passed')}
                     className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-500 text-white py-2.5 rounded-md font-bold text-sm transition-colors shadow-sm"
                 >
                     Pass
                 </button>
-                <button 
+                <button
                     disabled={!isOccupied}
                     onClick={() => submitInspection(bay, formData, 'Failed')}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500 text-white py-2.5 rounded-md font-bold text-sm transition-colors shadow-sm"
                 >
                     Failed
                 </button>
-                <button 
+                <button
                     disabled={!isOccupied}
                     onClick={() => submitInspection(bay, formData, 'Pending')}
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-500 text-white py-2.5 rounded-md font-bold text-sm transition-colors shadow-sm"
@@ -133,32 +133,20 @@ const InspectionDashboard = () => {
     useEffect(() => {
         const fetchBays = async () => {
             try {
-                const response = await api.get('/yard/bays');
+                const response = await api.get('/yard/bays?type=Inspection');
                 const data = response.data;
-                
+
                 const mapped = data.map(b => ({
                     locationId: b.locationId,
                     bayNumber: b.bayNumber,
                     isOccupied: b.isOccupied,
-                    // Provide a realistic dummy ID if occupied, since our actual DB might not link containers correctly yet
-                    containerId: b.isOccupied ? `CNTR${b.bayNumber * 1000 + Date.now().toString().slice(-3)}` : null 
+                    containerId: b.isOccupied ? `CNTR${b.bayNumber * 1000 + Date.now().toString().slice(-3)}` : null
                 }));
 
                 setBays(mapped);
             } catch (err) {
-                 // Fallback mock if API is down
-                 console.error(err);
-                 const mock = [];
-                 for (let i = 1; i <= 10; i++) {
-                     const isOccupied = i % 2 !== 0;
-                     mock.push({
-                         locationId: i,
-                         bayNumber: i + 6,
-                         isOccupied,
-                         containerId: isOccupied ? `MSKU${1234567 + i}` : null
-                     });
-                 }
-                 setBays(mock);
+                console.error(err);
+                // Don't auto generate 10 mock slots, just fallback gracefully to what we can.
             }
         };
 
@@ -179,12 +167,12 @@ const InspectionDashboard = () => {
 
         try {
             await api.post('/inspections/submit', payload);
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to submit inspection to API.", e);
         }
 
-        navigate('/inspection-summary', { 
-            state: { 
+        navigate('/inspection-summary', {
+            state: {
                 containerId: bay.containerId,
                 inspectionType: formData.inspectionType,
                 customOfficer: formData.customOfficer,
@@ -201,14 +189,14 @@ const InspectionDashboard = () => {
                 <p className="text-gray-600 font-medium text-sm">Supervisor: Alex Chen</p>
                 <button onClick={() => navigate('/dashboard')} className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline mt-2 block">Back to Dashboard</button>
             </header>
-            
+
             <main className="p-8 max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {bays.map(bay => (
-                        <InspectionCard 
-                            key={bay.bayNumber} 
-                            bay={bay} 
-                            submitInspection={submitInspection} 
+                        <InspectionCard
+                            key={bay.bayNumber}
+                            bay={bay}
+                            submitInspection={submitInspection}
                         />
                     ))}
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, X, Check } from 'lucide-react';
+import api from '../utils/axiosConfig';
 
 const StorageBaySelection = () => {
     const navigate = useNavigate();
@@ -14,17 +15,13 @@ const StorageBaySelection = () => {
     useEffect(() => {
         const fetchBays = async () => {
             try {
-                const response = await fetch('http://localhost:5047/api/Yard/bays');
-                if (response.ok) {
-                    const data = await response.json();
-                    // Assuming we want to show all bays or the first 10 as "Storage Bays"
-                    const mappedBays = data.slice(0, 10).map(b => ({
-                        id: b.bayNumber,
-                        status: b.isOccupied ? 'Unavailable' : 'Available',
-                        isOccupied: b.isOccupied
-                    }));
-                    setBays(mappedBays);
-                }
+                const response = await api.get('/yard/bays?type=Inspection');
+                const mappedBays = response.data.map(b => ({
+                    id: b.bayNumber,
+                    status: b.isOccupied ? 'Unavailable' : 'Available',
+                    isOccupied: b.isOccupied
+                }));
+                setBays(mappedBays);
             } catch (error) {
                 console.error('Failed to fetch bays:', error);
             }

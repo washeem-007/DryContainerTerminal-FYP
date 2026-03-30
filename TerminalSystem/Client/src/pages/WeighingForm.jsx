@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../utils/axiosConfig';
 
 const WeighingForm = () => {
     const navigate = useNavigate();
@@ -37,24 +38,12 @@ const WeighingForm = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5047/api/Containers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (response.ok) {
-                alert("Weighing Complete!");
-                navigate('/');
-            } else {
-                alert("Failed to submit weighing. Please try again.");
-                console.error("Submit failed", response.status, await response.text());
-            }
+            await api.post('/Containers', payload);
+            alert("Weighing Complete!");
+            navigate('/dashboard');
         } catch (error) {
+            alert("Failed to submit weighing. Please try again.");
             console.error("Error submitting form:", error);
-            alert("Network error. Check backend connection.");
         }
     };
 
@@ -117,7 +106,7 @@ const WeighingForm = () => {
                     <div className="flex justify-end gap-3 pt-6 border-t border-gray-100 mt-6">
                         <button
                             type="button"
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/dashboard')}
                             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
                         >
                             Cancel
