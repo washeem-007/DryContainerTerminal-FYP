@@ -46,17 +46,31 @@ namespace Server.Controllers
             // Call YardService to decide location
             await _yardService.DecideStorageLocationAsync(container);
 
-            _context.Containers.Add(container);
-            try
+            var existing = await _context.Containers.FindAsync(container.ContainerId);
+            if (existing != null)
             {
-                await _context.SaveChangesAsync();
+                // Update properties
+                existing.VehicleNumber = container.VehicleNumber;
+                existing.Type = container.Type;
+                existing.OriginPort = container.OriginPort;
+                existing.CurrentStatus = container.CurrentStatus;
+                existing.IsCleared = container.IsCleared;
+                existing.HasWeightSlip = container.HasWeightSlip;
+                existing.ArrivalTime = container.ArrivalTime;
+
+                if (container.CurrentLocationId.HasValue)
+                {
+                    existing.CurrentLocationId = container.CurrentLocationId;
+                }
+                
+                _context.Containers.Update(existing);
             }
-            catch (DbUpdateException)
+            else
             {
-                if (ContainerExists(container.ContainerId)) return Conflict();
-                else throw;
+                _context.Containers.Add(container);
             }
 
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetContainer), new { id = container.ContainerId }, container);
         }
 

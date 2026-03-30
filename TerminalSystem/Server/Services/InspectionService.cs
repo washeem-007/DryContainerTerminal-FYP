@@ -58,5 +58,75 @@ namespace Server.Services
             _context.Containers.Update(container);
             await _context.SaveChangesAsync();
         }
+        public async Task<Inspection> SubmitInspectionAsync(InspectionDTO dto)
+        {
+            var container = await _context.Containers.FindAsync(dto.ContainerId);
+            if (container == null)
+            {
+                // For demonstration, lazy create the container if it wasn't added at the gate
+                container = new Container
+                {
+                    ContainerId = dto.ContainerId,
+                    CurrentLocationId = dto.BayId,
+                    ArrivalTime = DateTime.UtcNow,
+                    CurrentStatus = "Inspection"
+                };
+                _context.Containers.Add(container);
+            }
+
+            var bay = await _context.Bays.FindAsync(dto.BayId);
+
+            var inspection = new Inspection
+            {
+                Type = dto.InspectionType,
+                Result = dto.Status, // Pass, Failed, Pending
+                AdditionalCharges = dto.AdditionalCharges,
+                Remarks = $"Officer: {dto.CustomOfficerName}, WharfClerk: {dto.WharfClerkName} ({dto.WharfClerkId})",
+                InspectedAt = DateTime.UtcNow,
+                ContainerId = dto.ContainerId,
+                OfficerId = 1 // Assuming 1 is Admin for now as a fallback since auth isn't deeply tied to OfficerId yet
+            };
+
+            _context.Inspections.Add(inspection);
+
+            if (dto.Status == "Pass")
+            {
+                container.IsCleared = true;
+                if (bay != null)
+                {
+                    bay.IsOccupied = false;
+                }
+                container.CurrentLocationId = null; // Removed from Bay
+            }
+            else if (dto.Status == "Failed")
+            {
+                container.IsCleared = false;
+                if (bay != null)
+                {
+                    bay.IsOccupied = false;
+                }
+                
+                // Move to Stack
+                var availableStack = await _context.Stacks.FirstOrDefaultAsync(s => !s.IsOccupied);
+                if (availableStack != null)
+                {
+                    availableStack.IsOccupied = true;
+                    container.CurrentLocationId = availableStack.LocationId;
+                }
+                else
+                {
+                    container.CurrentLocationId = null; // No stack available, fallback
+                }
+            }
+            else if (dto.Status == "Pending")
+            {
+                // Do not change Yard Locations
+            }
+
+            // Let EF Core's built-in change tracking handle the Updates
+            await _context.SaveChangesAsync();
+
+            return inspection;
+        }
     }
 }

@@ -88,6 +88,13 @@ namespace Server.Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Stack>> GetStacksAsync()
+        {
+            return await _context.Stacks
+                .OrderBy(s => s.StackLetter)
+                .ToListAsync();
+        }
+
         public async Task<bool> ReleaseBayAsync(int bayNumber)
         {
             var bay = await _context.Bays.FirstOrDefaultAsync(b => b.BayNumber == bayNumber);

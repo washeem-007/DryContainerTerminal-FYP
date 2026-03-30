@@ -7,6 +7,7 @@ namespace Server.Services
         Task<bool> DecideStorageLocationAsync(Container container);
         Task<object> GetYardSummaryAsync();
         Task<IEnumerable<Bay>> GetBaysAsync();
+        Task<IEnumerable<Stack>> GetStacksAsync();
         Task<bool> ReleaseBayAsync(int bayNumber);
     }
 }

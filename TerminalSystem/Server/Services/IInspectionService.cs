@@ -5,5 +5,6 @@ namespace Server.Services
     public interface IInspectionService
     {
         Task ProcessInspectionAsync(Inspection inspection);
+        Task<Inspection> SubmitInspectionAsync(InspectionDTO dto);
     }
 }

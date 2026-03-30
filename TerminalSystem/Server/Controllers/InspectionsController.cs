@@ -34,5 +34,23 @@ namespace Server.Controllers
             await _inspectionService.ProcessInspectionAsync(inspection);
             return CreatedAtAction(nameof(GetHistory), new { id = inspection.InspectionId }, inspection);
         }
+
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitInspection([FromBody] InspectionDTO dto)
+        {
+            try
+            {
+                var result = await _inspectionService.SubmitInspectionAsync(dto);
+                return Ok(new { inspectionId = result.InspectionId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { 
+                    error = ex.Message, 
+                    inner = ex.InnerException?.Message,
+                    stackTrace = ex.StackTrace 
+                });
+            }
+        }
     }
 }

@@ -27,6 +27,12 @@ namespace Server.Controllers
             return Ok(await _yardService.GetBaysAsync());
         }
 
+        [HttpGet("stacks")]
+        public async Task<ActionResult<IEnumerable<Stack>>> GetStacks()
+        {
+            return Ok(await _yardService.GetStacksAsync());
+        }
+
         [HttpPost("release/{bayNumber}")]
         public async Task<IActionResult> ReleaseBay(int bayNumber)
         {

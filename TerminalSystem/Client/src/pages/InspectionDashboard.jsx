@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/axiosConfig';
 
 const InspectionCard = ({ bay, submitInspection }) => {
     const isOccupied = bay.isOccupied;
@@ -132,37 +133,26 @@ const InspectionDashboard = () => {
     useEffect(() => {
         const fetchBays = async () => {
             try {
-                const response = await fetch('http://localhost:5047/api/Yard/bays');
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    const mapped = data.map(b => ({
-                        bayNumber: b.bayNumber,
-                        isOccupied: b.isOccupied,
-                        // Provide a realistic dummy ID if occupied, since our actual DB might not link containers correctly yet
-                        containerId: b.isOccupied ? `CNTR${b.bayNumber * 1000 + Date.now().toString().slice(-3)}` : null 
-                    }));
-                    
-                    // Force at least 2 occupied bays for UI demonstration if database is empty 
-                    if (!mapped.some(b => b.isOccupied) && mapped.length > 0) {
-                         mapped[0].isOccupied = true;
-                         mapped[0].containerId = "TCNU9876543";
-                         if(mapped.length > 1) {
-                             mapped[1].isOccupied = true;
-                             mapped[1].containerId = "GESU1234567";
-                         }
-                    }
+                const response = await api.get('/yard/bays');
+                const data = response.data;
+                
+                const mapped = data.map(b => ({
+                    locationId: b.locationId,
+                    bayNumber: b.bayNumber,
+                    isOccupied: b.isOccupied,
+                    // Provide a realistic dummy ID if occupied, since our actual DB might not link containers correctly yet
+                    containerId: b.isOccupied ? `CNTR${b.bayNumber * 1000 + Date.now().toString().slice(-3)}` : null 
+                }));
 
-                    setBays(mapped);
-                } else {
-                    throw new Error("Failed to fetch");
-                }
+                setBays(mapped);
             } catch (err) {
                  // Fallback mock if API is down
+                 console.error(err);
                  const mock = [];
-                 for (let i = 1; i <= 6; i++) {
+                 for (let i = 1; i <= 10; i++) {
                      const isOccupied = i % 2 !== 0;
                      mock.push({
+                         locationId: i,
                          bayNumber: i + 6,
                          isOccupied,
                          containerId: isOccupied ? `MSKU${1234567 + i}` : null
@@ -178,20 +168,19 @@ const InspectionDashboard = () => {
     const submitInspection = async (bay, formData, status) => {
         const payload = {
             ContainerId: bay.containerId,
-            InspectorName: formData.customOfficer,
-            InspectionDate: new Date().toISOString(),
-            Result: status,
-            Remarks: `Type: ${formData.inspectionType}, Charges: ${formData.additionalCharges || 0}`
+            BayId: bay.locationId,
+            Status: status === 'Passed' ? 'Pass' : status,
+            CustomOfficerName: formData.customOfficer,
+            InspectionType: formData.inspectionType,
+            AdditionalCharges: formData.additionalCharges ? parseFloat(formData.additionalCharges) : 0,
+            WharfClerkId: formData.wharfClerkId || 'WC000',
+            WharfClerkName: formData.wharfClerkName || 'Default Clerk'
         };
 
         try {
-            await fetch('http://localhost:5047/api/Inspections', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            await api.post('/inspections/submit', payload);
         } catch(e) {
-            console.error("Failed to submit inspection to API (might not be fully implemented in backend). Proceeding to summary.", e);
+            console.error("Failed to submit inspection to API.", e);
         }
 
         navigate('/inspection-summary', { 
@@ -210,6 +199,7 @@ const InspectionDashboard = () => {
             <header className="px-8 py-6 border-b border-gray-200">
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">Inspection Form</h1>
                 <p className="text-gray-600 font-medium text-sm">Supervisor: Alex Chen</p>
+                <button onClick={() => navigate('/dashboard')} className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline mt-2 block">Back to Dashboard</button>
             </header>
             
             <main className="p-8 max-w-6xl mx-auto">

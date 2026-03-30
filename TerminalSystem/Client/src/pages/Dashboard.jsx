@@ -130,12 +130,20 @@ const Dashboard = () => {
             <main className="p-8 max-w-7xl mx-auto">
                 <header className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl font-bold text-gray-900">Terminal Overview Dashboard</h1>
-                    <button
-                        onClick={() => setShowOnboardingModal(true)}
-                        className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                    >
-                        Start On Boarding Process
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => navigate('/inspection-dashboard')}
+                            className="bg-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm"
+                        >
+                            Go to Inspection Dashboard
+                        </button>
+                        <button
+                            onClick={() => setShowOnboardingModal(true)}
+                            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                        >
+                            Start On Boarding Process
+                        </button>
+                    </div>
                 </header>
 
                 {/* Quick Links */}
@@ -151,6 +159,12 @@ const Dashboard = () => {
                         className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
                         Inspection Bay Availability
+                    </button>
+                    <button
+                        onClick={() => navigate('/stacks')}
+                        className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                        Stack Availability
                     </button>
                 </div>
 
