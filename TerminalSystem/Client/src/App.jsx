@@ -11,6 +11,7 @@ import ContainerDetailsForm from './pages/ContainerDetailsForm';
 import ContainerSummary from './pages/ContainerSummary';
 import InspectionDashboard from './pages/InspectionDashboard';
 import InspectionSummary from './pages/InspectionSummary';
+import PaymentDashboard from './pages/PaymentDashboard';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/inspection-summary" element={<ProtectedRoute><InspectionSummary /></ProtectedRoute>} />
           <Route path="/container-details" element={<ProtectedRoute><ContainerDetailsForm /></ProtectedRoute>} />
           <Route path="/container-summary" element={<ProtectedRoute><ContainerSummary /></ProtectedRoute>} />
+          <Route path="/shipments" element={<ProtectedRoute><PaymentDashboard /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

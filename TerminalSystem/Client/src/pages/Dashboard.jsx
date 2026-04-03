@@ -143,6 +143,12 @@ const Dashboard = () => {
                         >
                             Start On Boarding Process
                         </button>
+                        <button
+                            onClick={() => navigate('/shipments')}
+                            className="bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm"
+                        >
+                            Shipments & Payments
+                        </button>
                     </div>
                 </header>
 

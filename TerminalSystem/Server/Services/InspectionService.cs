@@ -50,7 +50,7 @@ namespace Server.Services
             }
             else if (inspection.Result == "Pass")
             {
-                container.IsCleared = true;
+                // container.IsCleared = true; // DO NOT clear automatically
                 // Maybe move to Bay (Green Lane) since it is now cleared?
                 // await _yardService.DecideStorageLocationAsync(container);
             }
@@ -91,12 +91,11 @@ namespace Server.Services
 
             if (dto.Status == "Pass")
             {
-                container.IsCleared = true;
                 if (bay != null)
                 {
                     bay.IsOccupied = false;
                 }
-                container.CurrentLocationId = null; // Removed from Bay
+                container.CurrentLocationId = null; // Removed from Bay pending payment
             }
             else if (dto.Status == "Failed")
             {

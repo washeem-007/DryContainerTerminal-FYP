@@ -140,7 +140,7 @@ const InspectionDashboard = () => {
                     locationId: b.locationId,
                     bayNumber: b.bayNumber,
                     isOccupied: b.isOccupied,
-                    containerId: b.isOccupied ? `CNTR${b.bayNumber * 1000 + Date.now().toString().slice(-3)}` : null
+                    containerId: b.containerId || null
                 }));
 
                 setBays(mapped);

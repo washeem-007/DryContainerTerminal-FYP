@@ -9,5 +9,6 @@ namespace Server.Services
         Task<IEnumerable<Bay>> GetBaysAsync(string? bayType = null);
         Task<IEnumerable<Stack>> GetStacksAsync();
         Task<bool> ReleaseBayAsync(int bayNumber);
+        Task<bool> ReleaseStackAsync(int locationId);
     }
 }

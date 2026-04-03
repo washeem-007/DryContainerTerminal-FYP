@@ -19,11 +19,11 @@ const ContainerSummary = () => {
             type: formData.containerType,
             originPort: formData.originPort,
             productType: formData.productType,
-            // 'Shipper' is not in model, ignoring for now or could allow backend to handle
+            shipper: formData.shipper || "Unknown",
 
             // Workflow specific:
             hasWeightSlip: true,
-            isCleared: true,
+            isCleared: false, // Wait for inspection & payment
             preferredBayNumber: bayId,
 
             // Required by backend but not in this form:

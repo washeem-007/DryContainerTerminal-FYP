@@ -23,16 +23,16 @@ const WeighingForm = () => {
         const locationState = location.state || {}; // Rename to avoid conflict with 'location'
 
         // Construct payload with user data + hardcoded requirement fields
-        // Construct payload with user data + hardcoded requirement fields
         const payload = {
             containerId: formData.containerId,
             weight: 0, // Placeholder as it is not weighed yet
             productType: formData.productType,
+            shipper: formData.shipper || "Self",
             receiptNumber: formData.receiptNumber,
             vehicleNumber: "TRUCK-001",
-            originPort: "Pending",
-            isCleared: false, // Not cleared, needs weighing
-            hasWeightSlip: false, // No weight slip
+            CurrentStatus: 'Entry',
+            IsCleared: false, // Must pass inspection and payment to fully clear
+            HasWeightSlip: true, // No weight slip
             Size: 20,
             PreferredBayNumber: locationState.bayNumber ? parseInt(locationState.bayNumber) : null
         };

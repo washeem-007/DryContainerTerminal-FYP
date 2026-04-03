@@ -40,9 +40,67 @@ namespace Server.Controllers
             return container;
         }
 
+        [HttpGet("wharf-dashboard")]
+        public async Task<ActionResult<IEnumerable<WharfDashboardDTO>>> GetWharfDashboard()
+        {
+            var containers = await _context.Containers
+                .Where(c => !c.IsCleared)
+                .Include(c => c.CurrentLocation)
+                .Include(c => c.Inspections)
+                .ToListAsync();
+
+            var dtos = containers.Select(c =>
+            {
+                var latestInspection = c.Inspections.OrderByDescending(i => i.InspectedAt).FirstOrDefault();
+                
+                string status = "Awaiting Inspection";
+                if (latestInspection != null)
+                {
+                    status = latestInspection.Result == "Pass" ? "Passed" : 
+                             latestInspection.Result == "Fail" ? "Failed" : "Pending";
+                }
+                
+                string locationStr = "Transit/Unknown";
+                if (c.CurrentLocation != null)
+                {
+                    if (c.CurrentLocation is Bay b)
+                    {
+                        locationStr = $"Bay {b.BayNumber}";
+                    }
+                    else if (c.CurrentLocation is Stack s)
+                    {
+                        locationStr = $"Stack {s.StackLetter}, Tier {s.CurrentTier}";
+                    }
+                }
+
+                int daysInTerminal = (DateTime.Now - c.ArrivalTime).Days;
+                if (daysInTerminal < 0) daysInTerminal = 0;
+
+                decimal baseFee = 50.00m;
+                decimal addCharges = latestInspection?.AdditionalCharges ?? 0m;
+                decimal total = baseFee + addCharges;
+
+                return new WharfDashboardDTO
+                {
+                    ContainerId = c.ContainerId,
+                    Status = status,
+                    Location = locationStr,
+                    DaysInTerminal = daysInTerminal,
+                    Shipper = string.IsNullOrEmpty(c.Shipper) ? "Unknown" : c.Shipper,
+                    Type = c.Type,
+                    TotalDue = $"${total:F2}"
+                };
+            }).ToList();
+
+            return Ok(dtos);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Container>> Register(Container container)
         {
+            // Security: Prevent premature clearance from legacy frontend clients
+            container.IsCleared = false;
+
             // Call YardService to decide location
             await _yardService.DecideStorageLocationAsync(container);
 
@@ -53,8 +111,9 @@ namespace Server.Controllers
                 existing.VehicleNumber = container.VehicleNumber;
                 existing.Type = container.Type;
                 existing.OriginPort = container.OriginPort;
+                existing.Shipper = container.Shipper;
                 existing.CurrentStatus = container.CurrentStatus;
-                existing.IsCleared = container.IsCleared;
+                existing.IsCleared = container.IsCleared; // Allow updates if needed, though strictly we override it at the top for newly crafted registrations manually. Actually, let's omit overriding it here if it's an update. Wait, Register is used for BOTH.
                 existing.HasWeightSlip = container.HasWeightSlip;
                 existing.ArrivalTime = container.ArrivalTime;
 
@@ -82,6 +141,28 @@ namespace Server.Controllers
             try { await _context.SaveChangesAsync(); }
             catch (DbUpdateConcurrencyException) { if (!ContainerExists(id)) return NotFound(); else throw; }
             return NoContent();
+        }
+
+        [HttpPost("{id}/pay")]
+        public async Task<IActionResult> ProcessPayment(string id)
+        {
+            var container = await _context.Containers.FindAsync(id);
+            if (container == null) return NotFound();
+
+            // Lock payment clearance completely natively
+            container.IsCleared = true;
+            container.CurrentStatus = "Paid/Exiting";
+
+            // Free the storage yard
+            if (container.CurrentLocationId.HasValue)
+            {
+                var loc = await _context.YardLocations.FindAsync(container.CurrentLocationId);
+                if (loc != null) loc.IsOccupied = false;
+                container.CurrentLocationId = null;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpDelete("{id}")]

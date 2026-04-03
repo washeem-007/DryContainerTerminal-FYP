@@ -30,9 +30,20 @@ const StorageBaySelection = () => {
         fetchBays();
     }, []);
 
-    const handleBayClick = (bay) => {
+    const handleBayClick = async (bay) => {
         if (bay.status === 'Available') {
             setSelectedBay(bay.id === selectedBay ? null : bay.id);
+        } else {
+            if (window.confirm(`Bay ${bay.id} is occupied. Do you want to free this slot?`)) {
+                try {
+                    await api.post(`/yard/release/${bay.id}`);
+                    setBays(bays.map(b => b.id === bay.id ? { ...b, status: 'Available', isOccupied: false } : b));
+                    if (selectedBay === bay.id) setSelectedBay(null);
+                } catch (error) {
+                    console.error("Failed to release bay", error);
+                    alert("Failed to release bay.");
+                }
+            }
         }
     };
 

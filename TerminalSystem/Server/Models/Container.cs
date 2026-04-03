@@ -11,6 +11,7 @@ namespace Server.Models
         public string VehicleNumber { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; // e.g., "40ft HC"
         public string OriginPort { get; set; } = string.Empty;
+        public string Shipper { get; set; } = string.Empty;
         public string CurrentStatus { get; set; } = string.Empty; // e.g., "Entry", "Stacked"
         public bool IsCleared { get; set; }
         public bool HasWeightSlip { get; set; }

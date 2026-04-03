@@ -115,5 +115,24 @@ namespace Server.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> ReleaseStackAsync(int locationId)
+        {
+            var stack = await _context.Stacks.FirstOrDefaultAsync(s => s.LocationId == locationId);
+            if (stack == null || !stack.IsOccupied) return false;
+
+            stack.IsOccupied = false;
+            stack.CurrentTier = 0; // reset tier if applicable
+            
+            var container = await _context.Containers.FirstOrDefaultAsync(c => c.CurrentLocationId == stack.LocationId);
+            if (container != null)
+            {
+                container.CurrentLocationId = null; 
+                container.CurrentStatus = "Departed"; 
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

@@ -25,11 +25,19 @@ const WeighBaySelection = () => {
         fetchBays();
     }, []);
 
-    const handleBayClick = (bay) => {
+    const handleBayClick = async (bay) => {
         if (bay.status === 'Available') {
             navigate('/weighing-form', { state: { bayNumber: bay.id } });
         } else {
-            alert("This weigh bay is currently occupied. Please select another.");
+            if (window.confirm(`Bay ${bay.id} is occupied. Do you want to free this slot?`)) {
+                try {
+                    await api.post(`/yard/release/${bay.id}`);
+                    setBays(bays.map(b => b.id === bay.id ? { ...b, status: 'Available', isOccupied: false } : b));
+                } catch (error) {
+                    console.error("Failed to release bay", error);
+                    alert("Failed to release bay.");
+                }
+            }
         }
     };
 

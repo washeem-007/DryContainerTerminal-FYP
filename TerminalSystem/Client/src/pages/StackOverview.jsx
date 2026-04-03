@@ -24,6 +24,22 @@ const StackOverview = () => {
         fetchStacks();
     }, []);
 
+    const handleStackClick = async (stack) => {
+        if (stack.isOccupied) {
+            if (window.confirm(`Stack ${stack.stackLetter} is occupied. Do you want to free this stack?`)) {
+                try {
+                    await api.post(`/yard/release-stack/${stack.locationId}`);
+                    setStacks(stacks.map(s => s.locationId === stack.locationId ? { ...s, isOccupied: false, currentTier: 0 } : s));
+                } catch (error) {
+                    console.error("Failed to release stack", error);
+                    alert("Failed to release stack.");
+                }
+            }
+        } else {
+            alert(`Stack ${stack.stackLetter} is already available.`);
+        }
+    };
+
     // Derived statistics based on the 1-slot-per-stack backend constraint
     const totalCapacity = stacks.length; // 5
     const occupiedStacks = stacks.filter(s => s.isOccupied).length;
@@ -124,7 +140,7 @@ const StackOverview = () => {
                         const barWidth = isFull ? "w-full" : "w-0";
 
                         return (
-                            <div key={stack.locationId} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+                            <div key={stack.locationId} onClick={() => handleStackClick(stack)} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow">
                                 {/* Stack Headers */}
                                 <div className="w-full flex justify-between items-start mb-1">
                                     <h3 className="text-xl font-bold text-gray-900">Stack {stack.stackLetter}</h3>
