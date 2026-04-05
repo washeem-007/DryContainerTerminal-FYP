@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
-import { Activity, Lock, User } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -56,13 +56,11 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
             <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="bg-blue-600 p-2 rounded-xl text-white">
-                        <Activity className="w-8 h-8" />
-                    </div>
+                <div className="flex items-center gap-3 mb-4">
+                    <img src="https://i.ibb.co/8L2fs8MT/worldwide-shipping.png" alt="PortZen" className="w-24 h-24 object-contain" />
                 </div>
                 <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                    Terminal Operations System
+                    PortZen
                 </h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
                     Sign in to your account
@@ -113,25 +111,6 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                                    Remember me
-                                </label>
-                            </div>
-
-                            <div className="text-sm">
-                                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                                    Forgot your password?
-                                </a>
-                            </div>
-                        </div>
 
                         <div>
                             <button
