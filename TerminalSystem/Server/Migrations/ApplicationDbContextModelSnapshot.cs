@@ -61,7 +61,7 @@ namespace Server.Migrations
 
                     b.HasIndex("CurrentLocationId");
 
-                    b.ToTable("Containers");
+                    b.ToTable("Containers", (string)null);
                 });
 
             modelBuilder.Entity("Server.Models.Inspection", b =>
@@ -101,7 +101,7 @@ namespace Server.Migrations
 
                     b.HasIndex("OfficerId");
 
-                    b.ToTable("Inspections");
+                    b.ToTable("Inspections", (string)null);
                 });
 
             modelBuilder.Entity("Server.Models.Invoice", b =>
@@ -122,7 +122,7 @@ namespace Server.Migrations
 
                     b.HasIndex("InspectionId");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("Server.Models.User", b =>
@@ -145,7 +145,7 @@ namespace Server.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Server.Models.YardLocation", b =>
@@ -171,7 +171,7 @@ namespace Server.Migrations
 
                     b.HasKey("LocationId");
 
-                    b.ToTable("YardLocations");
+                    b.ToTable("YardLocations", (string)null);
 
                     b.HasDiscriminator<string>("LocationType").HasValue("YardLocation");
 

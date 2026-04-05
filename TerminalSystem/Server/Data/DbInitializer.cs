@@ -8,6 +8,33 @@ namespace Server.Data
         {
             context.Database.EnsureCreated();
 
+            // Seed Users — always runs on startup, username-check prevents duplicates
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                string Hash(string pw) =>
+                    BitConverter.ToString(sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pw)))
+                                .Replace("-", "").ToLower();
+
+                var personnel = new[]
+                {
+                    new User { Username = "washeem",  PasswordHash = Hash("washeem123"),  Role = "Admin" },
+                    new User { Username = "Lesly",    PasswordHash = Hash("Lesly123"),    Role = "Wharf Clerk" },
+                    new User { Username = "Alice",    PasswordHash = Hash("Alice123"),    Role = "Wharf Clerk" },
+                    new User { Username = "Harley",   PasswordHash = Hash("Harley123"),   Role = "Wharf Clerk" },
+                    new User { Username = "Beatrix",  PasswordHash = Hash("Beatrix123"),  Role = "Yard Supervisor" },
+                    new User { Username = "Cho",      PasswordHash = Hash("Cho123"),      Role = "Yard Supervisor" },
+                    new User { Username = "Rigsby",   PasswordHash = Hash("Rigsby123"),   Role = "Gate Clerk" },
+                    new User { Username = "Patrick",  PasswordHash = Hash("Patrick123"),  Role = "Gate Clerk" },
+                };
+
+                foreach (var person in personnel)
+                {
+                    if (!context.Users.Any(u => u.Username == person.Username))
+                        context.Users.Add(person);
+                }
+                context.SaveChanges();
+            }
+
             // Look for any yard locations.
             if (context.YardLocations.Any())
             {
@@ -54,26 +81,6 @@ namespace Server.Data
                 new Stack { LocationName = "E", IsOccupied = false, CapacityTier = 3, StackLetter = "E", CurrentTier = 0 },
             };
             context.Stacks.AddRange(stacks);
-
-            // Seed Users if none exist
-            if (!context.Users.Any())
-            {
-                // Simple SHA256 hashing inline for the seeder
-                using (var sha256 = System.Security.Cryptography.SHA256.Create())
-                {
-                    var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes("password123"));
-                    var defaultPasswordHash = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-
-                    var users = new User[]
-                    {
-                        new User { Username = "admin", PasswordHash = defaultPasswordHash, Role = "Admin" },
-                        new User { Username = "gateclerk", PasswordHash = defaultPasswordHash, Role = "Gate Clerk" },
-                        new User { Username = "supervisor", PasswordHash = defaultPasswordHash, Role = "Yard Supervisor" },
-                        new User { Username = "wharfclerk", PasswordHash = defaultPasswordHash, Role = "Wharf Clerk" }
-                    };
-                    context.Users.AddRange(users);
-                }
-            }
 
             context.SaveChanges();
         }
