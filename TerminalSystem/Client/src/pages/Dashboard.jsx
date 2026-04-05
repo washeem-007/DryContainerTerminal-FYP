@@ -103,10 +103,8 @@ const Dashboard = () => {
                         <span className="text-xl font-bold text-gray-900">logo</span>
                     </div>
                     <div className="hidden md:flex gap-6 text-sm font-medium text-gray-500">
-                        <a href="#" className="text-blue-600">Dashboard</a>
-                        <a href="#" className="hover:text-gray-900">Operations</a>
-                        <a href="#" className="hover:text-gray-900">Reports</a>
-                        <a href="#" className="hover:text-gray-900">Settings</a>
+                        <button onClick={() => navigate('/dashboard')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Dashboard</button>
+                        <button onClick={() => navigate('/database')} className="hover:text-gray-900">Database</button>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">

@@ -13,9 +13,12 @@ namespace Server.Models
         public string OriginPort { get; set; } = string.Empty;
         public string Shipper { get; set; } = string.Empty;
         public string CurrentStatus { get; set; } = string.Empty; // e.g., "Entry", "Stacked"
-        public bool IsCleared { get; set; }
+        public bool IsCleared { get; set; } = false;
         public bool HasWeightSlip { get; set; }
-        public DateTime ArrivalTime { get; set; }
+        public DateTime ArrivalTime { get; set; } = DateTime.UtcNow;
+
+        // Soft delete flag
+        public bool IsArchived { get; set; } = false;
 
         // Foreign Key to YardLocation (Nullable)
         public int? CurrentLocationId { get; set; }

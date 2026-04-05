@@ -34,8 +34,12 @@ const Login = () => {
             // Save to AuthContext/localStorage
             login(token, { username: returnedUsername, role });
             
-            // Redirect
-            navigate(from, { replace: true });
+            // Redirect based on role
+            if (role === 'Wharf Clerk') {
+                navigate('/payments', { replace: true });
+            } else {
+                navigate(from, { replace: true });
+            }
 
         } catch (err) {
             console.error('Login failed', err);
