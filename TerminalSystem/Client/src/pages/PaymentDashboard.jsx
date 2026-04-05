@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { AlertCircle, Clock, CheckCircle2, LayoutGrid, Box, ArrowRight, Truck } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AlertCircle, Clock, CheckCircle2, LayoutGrid, Box, ArrowRight, Truck, Search, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axiosConfig';
 import GatePassSuccess from '../components/GatePassSuccess';
+import { AuthContext } from '../context/AuthContext';
 
 const PaymentDashboard = () => {
     const navigate = useNavigate();
+    const { user, logout } = useContext(AuthContext);
+    const role = user?.role;
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
     const [containers, setContainers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [successPass, setSuccessPass] = useState(null);
-    const [activeTab, setActiveTab] = useState('Ready for Pickup');
+    const [activeTab, setActiveTab] = useState('Pending Inspection');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,13 +35,17 @@ const PaymentDashboard = () => {
     }, []);
 
     // Derived Status Counts
-    const actionRequiredCount = containers.filter(c => c.status === 'Failed').length;
+    const totalAmountDue = containers
+        .filter(c => c.status === 'Passed')
+        .reduce((sum, c) => {
+            const val = parseFloat((c.totalDue || '').toString().replace(/[^0-9.]/g, '')) || 0;
+            return sum + val;
+        }, 0);
     const awaitingInspectionCount = containers.filter(c => c.status === 'Pending' || c.status === 'Awaiting Inspection').length;
     const readyForPickupCount = containers.filter(c => c.status === 'Passed').length;
 
     // Filter displayed array based on tabs
     const displayedContainers = containers.filter(c => {
-        if (activeTab === 'Action Required') return c.status === 'Failed';
         if (activeTab === 'Pending Inspection') return c.status === 'Pending' || c.status === 'Awaiting Inspection';
         if (activeTab === 'Ready for Pickup') return c.status === 'Passed';
         return true;
@@ -69,26 +81,58 @@ const PaymentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-white">
+            {/* Navbar */}
+            <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
+                <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-2">
+                        <img src="https://i.ibb.co/8L2fs8MT/worldwide-shipping.png" alt="PortZen" className="w-8 h-8 object-contain" />
+                        <span className="text-xl font-bold text-gray-900">PortZen</span>
+                    </div>
+                    <div className="hidden md:flex gap-6 text-sm font-medium text-gray-500">
+                        <button onClick={() => navigate('/payments')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Shipments &amp; Payments</button>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64" />
+                    </div>
+                    <button className="p-2 hover:bg-gray-100 rounded-full">
+                        <Bell className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            {user?.username?.slice(0, 2).toUpperCase() || 'U'}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-bold text-gray-900">{user?.username}</span>
+                            <span className="text-[10px] text-gray-400">{role}</span>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="ml-2 px-3 py-1.5 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
             <main className="max-w-7xl mx-auto p-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-2">
-                        <span className="cursor-pointer hover:text-gray-700">Terminal Operations</span>
-                        <span>/</span>
-                        <span className="text-blue-600 cursor-pointer" onClick={() => navigate('/dashboard')}>Dashboard</span>
-                    </div>
                     <h1 className="text-3xl font-extrabold text-gray-900">Shipments Overview</h1>
                 </div>
 
                 {/* Top Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white border border-gray-200 rounded-xl p-6 flex items-center shadow-sm">
-                        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mr-4">
-                            <AlertCircle className="w-6 h-6 text-red-500" />
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mr-4">
+                            <AlertCircle className="w-6 h-6 text-blue-500" />
                         </div>
                         <div>
-                            <div className="text-sm font-semibold text-gray-500">Action Required</div>
-                            <div className="text-2xl font-bold text-gray-900">{actionRequiredCount.toString().padStart(2, '0')}</div>
+                            <div className="text-sm font-semibold text-gray-500">Total Amount Due</div>
+                            <div className="text-2xl font-bold text-blue-600">${totalAmountDue.toFixed(2)}</div>
                         </div>
                     </div>
                     <div className="bg-white border border-gray-200 rounded-xl p-6 flex items-center shadow-sm">
@@ -114,12 +158,6 @@ const PaymentDashboard = () => {
                 {/* Filters */}
                 <div className="flex justify-between items-center border-b border-gray-200 mb-8 pb-4">
                     <div className="flex gap-2">
-                        <button 
-                            onClick={() => setActiveTab('Action Required')}
-                            className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors border ${activeTab === 'Action Required' ? 'bg-gray-50 border-gray-200 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-                        >
-                            Action Required (Unpaid) {actionRequiredCount > 0 && <span className="ml-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">{actionRequiredCount}</span>}
-                        </button>
                         <button 
                             onClick={() => setActiveTab('Pending Inspection')}
                             className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors border ${activeTab === 'Pending Inspection' ? 'bg-gray-50 border-gray-200 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700'}`}

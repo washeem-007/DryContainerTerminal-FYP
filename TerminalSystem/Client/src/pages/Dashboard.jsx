@@ -1,35 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import StatCard from '../components/StatCard';
 import { Box, Layers, Activity, Truck, Search, Bell, Settings } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const { user, logout } = useContext(AuthContext);
+    const role = user?.role;
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
     const [stats, setStats] = useState({
         weighBays: { total: 0, occupied: 0, available: 0 },
         inspectionBays: { total: 0, occupied: 0, available: 0 },
         stacks: { total: 0, occupied: 0, available: 0 }
     });
     const [loading, setLoading] = useState(true);
+    const [recentContainers, setRecentContainers] = useState([]);
 
     useEffect(() => {
         // Fetch dashboard stats
         const fetchStats = async () => {
             try {
-                const response = await fetch('http://localhost:5047/api/Yard/dashboard');
-                if (response.ok) {
-                    const data = await response.json();
+                const [statsRes, recentRes] = await Promise.all([
+                    fetch('http://localhost:5047/api/Yard/dashboard'),
+                    fetch('http://localhost:5047/api/Yard/recent-containers')
+                ]);
 
-                    // The API returns PascalCase properties (WeighBays, InspectionBays, Stacks)
-                    // We need to map them to our lowercase state keys if we use lowercase, 
-                    // or just use them directly if we assume case-insensitive or map exactly.
-                    // Assuming the API returns lowercase or we map it:
+                if (statsRes.ok) {
+                    const data = await statsRes.json();
                     setStats({
                         weighBays: data.weighBays || data.WeighBays,
                         inspectionBays: data.inspectionBays || data.InspectionBays,
                         stacks: data.stacks || data.Stacks
                     });
+                }
+                if (recentRes.ok) {
+                    const recent = await recentRes.json();
+                    setRecentContainers(recent);
                 }
             } catch (error) {
                 console.error('Failed to fetch stats:', error);
@@ -99,12 +111,14 @@ const Dashboard = () => {
             <nav className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-2">
-                        <Activity className="w-6 h-6 text-blue-600" />
-                        <span className="text-xl font-bold text-gray-900">logo</span>
+                        <img src="https://i.ibb.co/8L2fs8MT/worldwide-shipping.png" alt="PortZen" className="w-8 h-8 object-contain" />
+                        <span className="text-xl font-bold text-gray-900">PortZen</span>
                     </div>
                     <div className="hidden md:flex gap-6 text-sm font-medium text-gray-500">
                         <button onClick={() => navigate('/dashboard')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Dashboard</button>
-                        <button onClick={() => navigate('/database')} className="hover:text-gray-900">Database</button>
+                        {role === 'Admin' && (
+                            <button onClick={() => navigate('/database')} className="hover:text-gray-900">Database</button>
+                        )}
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -119,87 +133,118 @@ const Dashboard = () => {
                     <button className="p-2 hover:bg-gray-100 rounded-full">
                         <Bell className="w-5 h-5 text-gray-600" />
                     </button>
-                    <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="Profile" />
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            {user?.username?.slice(0, 2).toUpperCase() || 'U'}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-bold text-gray-900">{user?.username}</span>
+                            <span className="text-[10px] text-gray-400">{role}</span>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="ml-2 px-3 py-1.5 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </nav>
 
-            <main className="p-8 max-w-7xl mx-auto">
-                <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Terminal Overview Dashboard</h1>
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => navigate('/inspection-dashboard')}
-                            className="bg-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm"
-                        >
-                            Go to Inspection Dashboard
-                        </button>
-                        <button
-                            onClick={() => setShowOnboardingModal(true)}
-                            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                        >
-                            Start On Boarding Process
-                        </button>
-                        <button
-                            onClick={() => navigate('/shipments')}
-                            className="bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm"
-                        >
-                            Shipments & Payments
-                        </button>
-                    </div>
-                </header>
+            <main className="px-8 py-6 max-w-7xl mx-auto">
 
-                {/* Quick Links */}
-                <div className="flex gap-4 mb-8">
-                    <button
-                        onClick={() => navigate('/weigh-bays')}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                    >
-                        Weigh Bay Availability
-                    </button>
-                    <button
-                        onClick={() => navigate('/storage-bays')}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                    >
-                        Inspection Bay Availability
-                    </button>
-                    <button
-                        onClick={() => navigate('/stacks')}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                    >
-                        Stack Availability
-                    </button>
+                {/* Action Buttons Panel */}
+                <div className="mb-4">
+                    {/* Top row: 3 action buttons */}
+                    <div className="grid grid-cols-3 gap-3">
+                        <div>
+                            {['Wharf Clerk', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => navigate('/payments')}
+                                    className="w-full py-2.5 px-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-sm font-semibold hover:bg-blue-200 transition-colors"
+                                >
+                                    Shipments &amp; Payments
+                                </button>
+                            ) : <div className="h-10" />}
+                        </div>
+                        <div>
+                            {['Gate Clerk', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => setShowOnboardingModal(true)}
+                                    className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                                >
+                                    Start On Boarding Process
+                                </button>
+                            ) : <div className="h-10" />}
+                        </div>
+                        <div>
+                            {['Yard Supervisor', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => navigate('/inspection-dashboard')}
+                                    className="w-full py-2.5 px-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-sm font-semibold hover:bg-blue-200 transition-colors"
+                                >
+                                    Inspection Dashboard
+                                </button>
+                            ) : <div className="h-10" />}
+                        </div>
+                    </div>
+
+                    {/* Bottom row: quick links */}
+                    <div className="grid grid-cols-3 gap-3 mt-2">
+                        <div>
+                            {['Gate Clerk', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => navigate('/weigh-bays')}
+                                    className="w-full py-3 px-4 text-sm text-gray-600 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                >
+                                    Weigh Bay Availability
+                                </button>
+                            ) : <div className="py-3 px-4" />}
+                        </div>
+                        <div>
+                            {['Gate Clerk', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => navigate('/storage-bays')}
+                                    className="w-full py-3 px-4 text-sm text-gray-600 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                >
+                                    Inspection Bay Availability
+                                </button>
+                            ) : <div className="py-3 px-4" />}
+                        </div>
+                        <div>
+                            {['Gate Clerk', 'Yard Supervisor', 'Admin'].includes(role) ? (
+                                <button
+                                    onClick={() => navigate('/stacks')}
+                                    className="w-full py-3 px-4 text-sm text-gray-600 font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                >
+                                    Stack Availability
+                                </button>
+                            ) : <div className="py-3 px-4" />}
+                        </div>
+                    </div>
                 </div>
+
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <StatCard
                         title="Total Containers"
                         value={totalContainers.toLocaleString()}
-                        change="+5% last month"
-                        changeType="positive"
                         icon={Box}
                     />
                     <StatCard
                         title="Inspection Bays Occupied"
                         value={`${bayOccupancy}%`}
-                        change="+2% last week"
-                        changeType="positive"
                         icon={Layers}
                     />
                     <StatCard
                         title="Stacks Utilized"
                         value={`${stackUtilization}%`}
-                        change="Steady"
-                        changeType="neutral"
                         icon={Activity}
                     />
                     <StatCard
                         title="Empty Containers (Slots)"
                         value={availableSlots.toLocaleString()}
-                        change="+10% available"
-                        changeType="positive"
                         icon={Truck}
                     />
                 </div>
@@ -248,29 +293,49 @@ const Dashboard = () => {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="text-xs text-gray-500 uppercase border-b border-gray-100">
-                                        <th className="pb-3 font-medium">ID</th>
+                                        <th className="pb-3 font-medium">Container ID</th>
                                         <th className="pb-3 font-medium">Type</th>
-                                        <th className="pb-3 font-medium">Container</th>
-                                        <th className="pb-3 font-medium">Bay</th>
-                                        <th className="pb-3 font-medium">Time</th>
-                                        <th className="pb-3 font-medium">Status</th>
+                                        <th className="pb-3 font-medium">Current Location</th>
+                                        <th className="pb-3 font-medium">Inspection</th>
+                                        <th className="pb-3 font-medium">Payment</th>
+                                        <th className="pb-3 font-medium">Exit Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
-                                            <td className="py-4 font-medium text-gray-900">OP-00{i}</td>
-                                            <td className="py-4 text-gray-600">{i % 2 === 0 ? 'Departure' : 'Arrival'}</td>
-                                            <td className="py-4 text-gray-600">CNTR-{100 * i}</td>
-                                            <td className="py-4 text-gray-600">A1-0{i}</td>
-                                            <td className="py-4 text-gray-600">09:30 AM</td>
+                                    {recentContainers.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="6" className="py-8 text-center text-gray-400 text-sm">No containers on record.</td>
+                                        </tr>
+                                    ) : recentContainers.map((row) => (
+                                        <tr key={row.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+                                            <td className="py-4 font-semibold text-blue-600">{row.id}</td>
+                                            <td className="py-4 font-medium text-gray-800">{row.type}</td>
+                                            <td className="py-4 text-gray-600">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block"></span>
+                                                    {row.location}
+                                                </div>
+                                            </td>
                                             <td className="py-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${i === 2 ? 'bg-yellow-100 text-yellow-700' :
-                                                    i === 4 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                                                    }`}>
-                                                    {i === 2 ? 'In Progress' : i === 4 ? 'Delayed' : 'Completed'}
+                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${
+                                                    row.inspection === 'Active'  ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                                    row.inspection === 'Passed'  ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    row.inspection === 'Failed'  ? 'bg-red-50 text-red-700 border-red-200' :
+                                                    'bg-gray-50 text-gray-600 border-gray-200'
+                                                }`}>
+                                                    {row.inspection}
                                                 </span>
                                             </td>
+                                            <td className="py-4">
+                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${
+                                                    row.payment === 'Paid'    ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    row.payment === 'Pending' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                                                    'bg-gray-50 text-gray-600 border-gray-200'
+                                                }`}>
+                                                    {row.payment}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 text-gray-500 text-xs italic">{row.exitStatus}</td>
                                         </tr>
                                     ))}
                                 </tbody>

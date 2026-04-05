@@ -69,5 +69,55 @@ namespace Server.Controllers
             if (!result) return BadRequest("Stack not found or already free.");
             return Ok(new { message = $"Stack {locationId} released successfully." });
         }
+
+        [HttpGet("recent-containers")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRecentContainers()
+        {
+            try
+            {
+                var containers = await _context.Containers
+                    .Where(c => !c.IsArchived)
+                    .Include(c => c.CurrentLocation)
+                    .Include(c => c.Inspections)
+                    .OrderByDescending(c => c.ArrivalTime)
+                    .Take(10)
+                    .ToListAsync();
+
+                var dtos = containers.Select(c =>
+                {
+                    var latestInspection = c.Inspections?.OrderByDescending(i => i.InspectedAt).FirstOrDefault();
+
+                    string inspectionStatus = "Active";
+                    if (latestInspection != null)
+                    {
+                        inspectionStatus = latestInspection.Result == "Pass" ? "Passed" :
+                                 latestInspection.Result == "Failed" ? "Failed" : "Active";
+                    }
+
+                    string locationStr = "Transit/Unknown";
+                    if (c.CurrentLocation != null)
+                    {
+                        if (c.CurrentLocation is Bay b) locationStr = $"Bay {b.BayNumber}";
+                        else if (c.CurrentLocation is Stack s) locationStr = $"Stack {s.StackLetter}";
+                    }
+
+                    return new
+                    {
+                        id = c.ContainerId,
+                        type = c.Type,
+                        location = locationStr,
+                        inspection = inspectionStatus,
+                        payment = c.IsCleared ? "Paid" : "Pending",
+                        exitStatus = c.CurrentStatus == "Departed" || c.IsCleared ? $"Exited {c.ArrivalTime.AddDays(2):dd/MM}" : "-"
+                    };
+                }).ToList();
+
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
-import { CheckCircle2, ShieldCheck, Download, Mail, Printer, FileText, ArrowLeft, Anchor, UserRound } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Printer, ArrowLeft, Anchor, UserRound } from 'lucide-react';
 
 const GatePassSuccess = ({ container, onClose }) => {
     // Generate a random pass ID for display
@@ -14,9 +14,6 @@ const GatePassSuccess = ({ container, onClose }) => {
                     <CheckCircle2 className="w-12 h-12 text-teal-600" />
                 </div>
                 <h1 className="text-3xl font-extrabold text-gray-900 mb-4">Payment Successful</h1>
-                <p className="text-gray-500 max-w-sm mx-auto text-sm leading-relaxed">
-                    The container has been released and is ready for terminal exit. The digital gate pass is active.
-                </p>
             </div>
 
             {/* Official Gate Pass Ticket Card */}
@@ -67,23 +64,12 @@ const GatePassSuccess = ({ container, onClose }) => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4 w-full max-w-md mb-6">
-                <button className="flex-1 bg-white border border-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm text-sm">
-                    <Download className="w-4 h-4" /> Download E-Gate Pass (PDF)
-                </button>
-                <button className="flex-1 bg-[#2b75b9] hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm text-sm">
-                    <Mail className="w-4 h-4" /> Email to Driver
-                </button>
-            </div>
-
-            {/* Sub Actions */}
-            <div className="flex items-center gap-6 mb-12">
-                <button className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
-                    <Printer className="w-4 h-4" /> Print Receipt
-                </button>
-                <div className="w-px h-4 bg-gray-300"></div>
-                <button className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
-                    <FileText className="w-4 h-4" /> View Invoice
+            <div className="w-full max-w-md mb-6">
+                <button
+                    onClick={() => window.print()}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md text-sm"
+                >
+                    <Printer className="w-5 h-5" /> Print Receipt
                 </button>
             </div>
 
