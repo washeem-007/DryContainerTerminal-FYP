@@ -1,0 +1,6 @@
+bin/
+obj/
+TerminalDB.db
+TerminalDB.db-shm
+TerminalDB.db-wal
+appsettings.Development.json

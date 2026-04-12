@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import StatCard from '../components/StatCard';
 import { Box, Layers, Activity, Truck, Search, Bell, Settings } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-
+import api from '../utils/axiosConfig';
 const Dashboard = () => {
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
@@ -27,22 +27,18 @@ const Dashboard = () => {
         const fetchStats = async () => {
             try {
                 const [statsRes, recentRes] = await Promise.all([
-                    fetch('http://localhost:5047/api/Yard/dashboard'),
-                    fetch('http://localhost:5047/api/Yard/recent-containers')
+                    api.get('/Yard/dashboard'),
+                    api.get('/Yard/recent-containers')
                 ]);
 
-                if (statsRes.ok) {
-                    const data = await statsRes.json();
-                    setStats({
-                        weighBays: data.weighBays || data.WeighBays,
-                        inspectionBays: data.inspectionBays || data.InspectionBays,
-                        stacks: data.stacks || data.Stacks
-                    });
-                }
-                if (recentRes.ok) {
-                    const recent = await recentRes.json();
-                    setRecentContainers(recent);
-                }
+                const data = statsRes.data;
+                setStats({
+                    weighBays: data.weighBays || data.WeighBays,
+                    inspectionBays: data.inspectionBays || data.InspectionBays,
+                    stacks: data.stacks || data.Stacks
+                });
+
+                setRecentContainers(recentRes.data);
             } catch (error) {
                 console.error('Failed to fetch stats:', error);
             } finally {
