@@ -8,7 +8,7 @@ namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize] // Default: Must be logged in at a minimum
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -19,6 +19,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("containers")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<object>>> GetContainers()
         {
             try
@@ -67,6 +68,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("inspections")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<object>>> GetInspections()
         {
             var inspectionsQuery = await _context.Inspections
@@ -85,6 +87,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("users")]
+        [Authorize(Roles = "Admin, Yard Supervisor")]
         public async Task<ActionResult<IEnumerable<object>>> GetUsers()
         {
             var users = await _context.Users
@@ -98,6 +101,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("yardlocations")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<object>>> GetYardLocations()
         {
             var locations = await _context.YardLocations.Select(l => new {
@@ -110,6 +114,7 @@ namespace Server.Controllers
         }
 
         [HttpPut("containers/{id}/archive")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ArchiveContainer(string id)
         {
             var container = await _context.Containers.FindAsync(id);
@@ -133,6 +138,7 @@ namespace Server.Controllers
         }
 
         [HttpDelete("containers/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteContainer(string id)
         {
             try

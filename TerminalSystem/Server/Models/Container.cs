@@ -13,6 +13,7 @@ namespace Server.Models
         public string OriginPort { get; set; } = string.Empty;
         public string Shipper { get; set; } = string.Empty;
         public string CurrentStatus { get; set; } = string.Empty; // e.g., "Entry", "Stacked"
+        public string? AssignedWharfClerk { get; set; }
         public bool IsCleared { get; set; } = false;
         public bool HasWeightSlip { get; set; }
         public DateTime ArrivalTime { get; set; } = DateTime.UtcNow;

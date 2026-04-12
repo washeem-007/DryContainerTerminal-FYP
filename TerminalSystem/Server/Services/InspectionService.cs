@@ -69,9 +69,17 @@ namespace Server.Services
                     ContainerId = dto.ContainerId,
                     CurrentLocationId = dto.BayId,
                     ArrivalTime = DateTime.UtcNow,
-                    CurrentStatus = "Inspection"
+                    CurrentStatus = "Inspection",
+                    AssignedWharfClerk = dto.AssignedWharfClerk
                 };
                 _context.Containers.Add(container);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(dto.AssignedWharfClerk))
+                {
+                    container.AssignedWharfClerk = dto.AssignedWharfClerk;
+                }
             }
 
             var bay = await _context.Bays.FindAsync(dto.BayId);
@@ -81,7 +89,7 @@ namespace Server.Services
                 Type = dto.InspectionType,
                 Result = dto.Status, // Pass, Failed, Pending
                 AdditionalCharges = dto.AdditionalCharges,
-                Remarks = $"Officer: {dto.CustomOfficerName}, WharfClerk: {dto.WharfClerkName} ({dto.WharfClerkId})",
+                Remarks = $"Officer: {dto.CustomOfficerName}, AssignedTo: {dto.AssignedWharfClerk}",
                 InspectedAt = DateTime.UtcNow,
                 ContainerId = dto.ContainerId,
                 OfficerId = 1 // Assuming 1 is Admin for now as a fallback since auth isn't deeply tied to OfficerId yet

@@ -8,7 +8,6 @@ namespace Server.Models
         public string CustomOfficerName { get; set; } = string.Empty;
         public string InspectionType { get; set; } = string.Empty;
         public decimal AdditionalCharges { get; set; }
-        public string WharfClerkId { get; set; } = string.Empty;
-        public string WharfClerkName { get; set; } = string.Empty;
+        public string? AssignedWharfClerk { get; set; }
     }
 }

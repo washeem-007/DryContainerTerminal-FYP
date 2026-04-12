@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
@@ -41,13 +42,24 @@ namespace Server.Controllers
         }
 
         [HttpGet("wharf-dashboard")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<WharfDashboardDTO>>> GetWharfDashboard()
         {
-            var containers = await _context.Containers
+            var currentUser = User.Identity?.Name;
+            var isWharfClerk = User.IsInRole("Wharf Clerk");
+
+            var query = _context.Containers
                 .Where(c => !c.IsCleared)
                 .Include(c => c.CurrentLocation)
                 .Include(c => c.Inspections)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (isWharfClerk)
+            {
+                query = query.Where(c => c.AssignedWharfClerk == currentUser);
+            }
+
+            var containers = await query.ToListAsync();
 
             var dtos = containers.Select(c =>
             {

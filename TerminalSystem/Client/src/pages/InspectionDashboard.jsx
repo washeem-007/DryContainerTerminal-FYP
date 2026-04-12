@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axiosConfig';
 
-const InspectionCard = ({ bay, submitInspection }) => {
+const InspectionCard = ({ bay, submitInspection, wharfClerks }) => {
     const isOccupied = bay.isOccupied;
     const [formData, setFormData] = useState({
         customOfficer: 'John Doe',
         inspectionType: 'Full Inspection',
         additionalCharges: '',
-        wharfClerkId: '',
-        wharfClerkName: 'Selected clerk name'
+        assignedWharfClerk: '' 
     });
+
+    useEffect(() => {
+        if (wharfClerks && wharfClerks.length > 0 && !formData.assignedWharfClerk) {
+            setFormData(prev => ({ ...prev, assignedWharfClerk: wharfClerks[0].name }));
+        }
+    }, [wharfClerks]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,30 +77,20 @@ const InspectionCard = ({ bay, submitInspection }) => {
                 </div>
 
                 <div>
-                    <label className="block text-xs font-semibold text-gray-800 mb-1">Wharf Clerk ID</label>
+                    <label className="block text-xs font-semibold text-gray-800 mb-1">Assign to Wharf Clerk</label>
                     <select
-                        name="wharfClerkId"
-                        value={formData.wharfClerkId}
+                        name="assignedWharfClerk"
+                        value={formData.assignedWharfClerk}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                        <option value="">Search ID...</option>
-                        <option value="WC001">WC001</option>
-                        <option value="WC002">WC002</option>
+                        <option value="">Select a clerk...</option>
+                        {wharfClerks && wharfClerks.map(clerk => (
+                            <option key={clerk.id} value={clerk.name}>
+                                {clerk.name}
+                            </option>
+                        ))}
                     </select>
-                </div>
-
-                <div>
-                    <label className="block text-xs font-semibold text-gray-800 mb-1">Wharf Clerk Name</label>
-                    <input
-                        type="text"
-                        name="wharfClerkName"
-                        value={formData.wharfClerkName}
-                        onChange={handleChange}
-                        placeholder="Selected clerk name"
-                        className="w-full p-2 border border-gray-200 rounded-md text-sm bg-gray-100 text-gray-500"
-                        readOnly
-                    />
                 </div>
             </div>
 
@@ -129,9 +124,10 @@ const InspectionCard = ({ bay, submitInspection }) => {
 const InspectionDashboard = () => {
     const navigate = useNavigate();
     const [bays, setBays] = useState([]);
+    const [wharfClerks, setWharfClerks] = useState([]);
 
     useEffect(() => {
-        const fetchBays = async () => {
+        const fetchBaysAndUsers = async () => {
             try {
                 const response = await api.get('/yard/bays?type=Inspection');
                 const data = response.data;
@@ -148,9 +144,17 @@ const InspectionDashboard = () => {
                 console.error(err);
                 // Don't auto generate 10 mock slots, just fallback gracefully to what we can.
             }
+
+            try {
+                const usersResponse = await api.get('/admin/users');
+                const clerks = usersResponse.data.filter(u => u.role === 'Wharf Clerk');
+                setWharfClerks(clerks);
+            } catch (err) {
+                console.error("Failed to fetch wharf clerks", err);
+            }
         };
 
-        fetchBays();
+        fetchBaysAndUsers();
     }, []);
 
     const submitInspection = async (bay, formData, status) => {
@@ -161,8 +165,7 @@ const InspectionDashboard = () => {
             CustomOfficerName: formData.customOfficer,
             InspectionType: formData.inspectionType,
             AdditionalCharges: formData.additionalCharges ? parseFloat(formData.additionalCharges) : 0,
-            WharfClerkId: formData.wharfClerkId || 'WC000',
-            WharfClerkName: formData.wharfClerkName || 'Default Clerk'
+            AssignedWharfClerk: formData.assignedWharfClerk
         };
 
         try {
@@ -197,6 +200,7 @@ const InspectionDashboard = () => {
                             key={bay.bayNumber}
                             bay={bay}
                             submitInspection={submitInspection}
+                            wharfClerks={wharfClerks}
                         />
                     ))}
                 </div>
