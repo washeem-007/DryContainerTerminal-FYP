@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, X, Check } from 'lucide-react';
 import api from '../utils/axiosConfig';
+import TopNavbar from '../components/TopNavbar';
 
 const StorageBaySelection = () => {
     const navigate = useNavigate();
@@ -54,8 +55,12 @@ const StorageBaySelection = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white p-8">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-white">
+            <TopNavbar>
+                <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">Dashboard</button>
+                <button onClick={() => navigate('/storage-bays')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Bay Selection</button>
+            </TopNavbar>
+            <div className="max-w-6xl mx-auto p-8">
                 <header className="mb-12">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Inspection Bay Slot Selection</h1>
                     <p className="text-gray-500">
@@ -98,7 +103,7 @@ const StorageBaySelection = () => {
                             }
                         `}
                     >
-                        Next (Summary)
+                        Next
                     </button>
                 </div>
             </div>

@@ -49,7 +49,7 @@ const ContainerSummary = () => {
         <div className="min-h-screen bg-gray-50 pt-12">
             <div className="max-w-5xl mx-auto">
                 <div className="hidden print:block text-center text-2xl font-bold mb-8">Terminal Gate Pass</div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-8 print:hidden">Summary of Container Weighing</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-8 print:hidden">Summary of Container Details</h1>
 
                 <div className="grid grid-cols-3 gap-8 mb-8 print:block print:space-y-8">
                     {/* Container Details Card */}

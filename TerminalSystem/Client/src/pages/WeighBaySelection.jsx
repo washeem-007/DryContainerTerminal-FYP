@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, X } from 'lucide-react';
 import api from '../utils/axiosConfig';
+import TopNavbar from '../components/TopNavbar';
 
 const WeighBaySelection = () => {
     const navigate = useNavigate();
@@ -42,7 +43,12 @@ const WeighBaySelection = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col items-center pt-20">
+        <div className="min-h-screen bg-white flex flex-col">
+            <TopNavbar>
+                <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">Dashboard</button>
+                <button onClick={() => navigate('/weigh-bays')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Weigh Bay Status</button>
+            </TopNavbar>
+            <div className="flex flex-col items-center pt-12">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Weigh Bay Status Overview</h1>
             <p className="text-gray-500 mb-12 text-center max-w-lg">
                 Select an available (green) weigh bay to begin the container weighing process and record details.
@@ -70,6 +76,7 @@ const WeighBaySelection = () => {
                         )}
                     </div>
                 ))}
+            </div>
             </div>
         </div>
     );

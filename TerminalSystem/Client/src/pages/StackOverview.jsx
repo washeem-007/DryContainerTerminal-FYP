@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axiosConfig';
 import { Layers, Activity, AlertTriangle, ArrowLeft, CheckCircle2, Box } from 'lucide-react';
+import TopNavbar from '../components/TopNavbar';
 
 const StackOverview = () => {
     const navigate = useNavigate();
@@ -52,8 +53,12 @@ const StackOverview = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col p-8 font-sans text-gray-900">
-            <div className="max-w-7xl mx-auto w-full flex-grow">
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+            <TopNavbar>
+                <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">Dashboard</button>
+                <button onClick={() => navigate('/stacks')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Stack Overview</button>
+            </TopNavbar>
+            <div className="max-w-7xl mx-auto w-full flex-grow p-8">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
                     <div>

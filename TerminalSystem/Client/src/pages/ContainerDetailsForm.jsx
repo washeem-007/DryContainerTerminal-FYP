@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import SmartContainerInput from '../components/SmartContainerInput';
+import TopNavbar from '../components/TopNavbar';
 
 const ContainerDetailsForm = () => {
     const navigate = useNavigate();
@@ -11,9 +13,10 @@ const ContainerDetailsForm = () => {
         weight: '',
         originPort: '',
         shipper: '',
-        containerType: '40ft High Cube Dry', // Default as per image
+        containerType: '40ft High Cube Dry',
         productType: ''
     });
+    const [isContainerIdValid, setIsContainerIdValid] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,8 +37,9 @@ const ContainerDetailsForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-12">
-            <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+        <div className="min-h-screen bg-gray-50">
+            <TopNavbar />
+            <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200 mt-8">
                 <header className="mb-8 border-b border-gray-100 pb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Container Details</h2>
                     <p className="text-gray-500">Enter the details for the container in Bay {bayId}.</p>
@@ -43,18 +47,12 @@ const ContainerDetailsForm = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Container ID</label>
-                            <input
-                                type="text"
-                                name="containerId"
-                                value={formData.containerId}
-                                onChange={handleChange}
-                                placeholder="C-WEIGH-2024-001"
-                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                required
-                            />
-                        </div>
+                        <SmartContainerInput
+                            onChange={(rawValue, valid) => {
+                                setFormData(prev => ({ ...prev, containerId: rawValue }));
+                                setIsContainerIdValid(valid);
+                            }}
+                        />
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
                             <input
@@ -128,7 +126,8 @@ const ContainerDetailsForm = () => {
                     <div className="flex justify-end pt-6">
                         <button
                             type="submit"
-                            className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                            disabled={!isContainerIdValid}
+                            className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Next
                         </button>

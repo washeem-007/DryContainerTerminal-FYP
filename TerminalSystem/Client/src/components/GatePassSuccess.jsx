@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import QRCode from 'react-qr-code';
 import { CheckCircle2, ShieldCheck, Printer, ArrowLeft, Anchor, UserRound } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const GatePassSuccess = ({ container, onClose }) => {
+    const { user } = useContext(AuthContext);
     // Generate a random pass ID for display
     const passId = `G-PASS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -47,8 +49,8 @@ const GatePassSuccess = ({ container, onClose }) => {
                             <div className="font-bold text-gray-900 truncate">{container.shipper || 'Oceanic Horizon / V204'}</div>
                         </div>
                         <div>
-                            <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Assigned Wharf Clerk</div>
-                            <div className="font-medium text-gray-800 flex items-center gap-1.5"><UserRound className="w-3.5 h-3.5 text-gray-400"/> Samuel Jenkins</div>
+                            <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Wharf Clerk</div>
+                            <div className="font-medium text-gray-800 flex items-center gap-1.5"><UserRound className="w-3.5 h-3.5 text-gray-400"/> {user?.username || '—'}</div>
                         </div>
                         <div>
                             <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Terminal Location</div>

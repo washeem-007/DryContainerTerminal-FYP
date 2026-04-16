@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axiosConfig';
+import TopNavbar from '../components/TopNavbar';
 
 const InspectionCard = ({ bay, submitInspection, wharfClerks }) => {
     const isOccupied = bay.isOccupied;
@@ -187,11 +188,10 @@ const InspectionDashboard = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <header className="px-8 py-6 border-b border-gray-200">
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">Inspection Form</h1>
-                <p className="text-gray-600 font-medium text-sm">Supervisor: Alex Chen</p>
-                <button onClick={() => navigate('/dashboard')} className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline mt-2 block">Back to Dashboard</button>
-            </header>
+            <TopNavbar>
+                <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">Dashboard</button>
+                <button onClick={() => navigate('/inspection-dashboard')} className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 -mb-1">Inspection Form</button>
+            </TopNavbar>
 
             <main className="p-8 max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
