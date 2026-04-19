@@ -1,4 +1,15 @@
 services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: TerminalDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   backend:
     build: 
       context: ./Server
@@ -6,6 +17,10 @@ services:
       - "5000:8080"
     volumes:
       - terminal_data:/app/data
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=TerminalDB;User=root;Password=rootpassword;
 
   frontend:
     build: 
@@ -17,3 +32,4 @@ services:
 
 volumes:
   terminal_data:
+  mysql_data:
