@@ -31,7 +31,7 @@ PortZen is built using a modern, containerized three-tier architecture:
 
 ### Azure deployment 
 The system is fully deployed in AzureVM and can be accessed using the following link. 
-*   **Web Dashboard:** [http://portzen.southeastasia.cloudapp.azure.com:5000](http://portzen.southeastasia.cloudapp.azure.com:5000)
+*   **Web Dashboard:** [http://portzen.southeastasia.cloudapp.azure.com:5000](http://portzen.southeastasia.cloudapp.azure.com:5173)
 
 The project can be fully run in the local machine as well. PortZen is fully containerized to ensure a consistent environment. The system handles database initialization and data seeding automatically upon startup.
 
