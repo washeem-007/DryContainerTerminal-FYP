@@ -28,7 +28,6 @@ const Login = () => {
                 password
             });
 
-            // Expected response: { token: '...', username: '...', role: '...' }
             const { token, username: returnedUsername, role } = response.data;
 
             // Save to AuthContext/localStorage

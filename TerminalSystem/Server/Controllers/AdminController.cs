@@ -8,7 +8,7 @@ namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] 
+    [Authorize] //no one can access any api without the JWT token
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -33,7 +33,7 @@ namespace Server.Controllers
                 {
                     var latestInspection = c.Inspections?.OrderByDescending(i => i.InspectedAt).FirstOrDefault();
                     
-                    string inspectionStatus = "Active"; // Default
+                    string inspectionStatus = "Active"; 
                     if (latestInspection != null)
                     {
                         inspectionStatus = latestInspection.Result == "Pass" ? "Active" : 

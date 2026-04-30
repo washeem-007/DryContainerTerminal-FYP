@@ -17,14 +17,13 @@ namespace Server.Services
         {
             YardLocation? assignedLocation = null;
 
-            // 1. Honor PreferredBayNumber if available
+
             if (container.PreferredBayNumber.HasValue)
             {
                 assignedLocation = await _context.Bays
                     .FirstOrDefaultAsync(b => b.BayNumber == container.PreferredBayNumber.Value && !b.IsOccupied);
             }
 
-            // 2. Fallbacks if no preferred bay provided or it was full
             if (assignedLocation == null)
             {
                 if (container.IsCleared)
@@ -42,20 +41,18 @@ namespace Server.Services
             if (assignedLocation != null)
             {
                 container.CurrentLocationId = assignedLocation.LocationId;
-                assignedLocation.IsOccupied = true; // Mark as occupied (simplified)
+                assignedLocation.IsOccupied = true; // Mark as occupied 
                 
-                // If it's a stack, maybe increase tier? For now just mark occupied.
                 if (assignedLocation is Stack stack)
                 {
                     stack.CurrentTier++;
                 }
 
                 _context.Update(assignedLocation);
-                // Note: The caller (Controller) should save changes to Container, but we update Location here.
                 return true;
             }
 
-            return false; // No space found
+            return false; 
         }
 
         public async Task<object> GetYardSummaryAsync()
@@ -103,13 +100,11 @@ namespace Server.Services
 
             bay.IsOccupied = false;
             
-            // Also update any container currently in this location? 
-            // For now, simpler to just free the bay. Real world would require moving the container record too.
             var container = await _context.Containers.FirstOrDefaultAsync(c => c.CurrentLocationId == bay.LocationId);
             if (container != null)
             {
                 container.CurrentLocationId = null; // Remove from bay
-                container.CurrentStatus = "Departed"; // Or returned to stack? Assuming Departed for this workflow.
+                container.CurrentStatus = "Departed"; // returned to stack
             }
 
             await _context.SaveChangesAsync();
@@ -122,7 +117,7 @@ namespace Server.Services
             if (stack == null || !stack.IsOccupied) return false;
 
             stack.IsOccupied = false;
-            stack.CurrentTier = 0; // reset tier if applicable
+            stack.CurrentTier = 0; 
             
             var container = await _context.Containers.FirstOrDefaultAsync(c => c.CurrentLocationId == stack.LocationId);
             if (container != null)

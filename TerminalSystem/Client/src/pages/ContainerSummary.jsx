@@ -10,8 +10,6 @@ const ContainerSummary = () => {
 
     const handleDone = async () => {
         // Construct Payload
-        // Note: 'Shipper' and 'ContainerType' fields are not in the backend 'Container' model yet.
-        // We will map what we can and maybe omit or repurpose others, or send them if backend ignores extras.
         const payload = {
             containerId: formData.containerId,
             weight: parseFloat(formData.weight),
@@ -26,8 +24,7 @@ const ContainerSummary = () => {
             isCleared: false, // Wait for inspection & payment
             preferredBayNumber: bayId,
 
-            // Required by backend but not in this form:
-            vehicleNumber: "TRUCK-DEFAULT", // Hardcoded for this workflow as per previous pattern
+            vehicleNumber: "TRUCK-DEFAULT", // Hardcoded for this workflow
             arrivalTime: new Date().toISOString()
         };
 
@@ -65,11 +62,6 @@ const ContainerSummary = () => {
                                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Type</label>
                                 <div className="text-lg font-medium text-gray-900">{formData.containerType}</div>
                             </div>
-
-                            {/* Tare/Net Weight are calculated/mocked for display if user only entered Gross? 
-                                User entered 'Weight', let's assume it's Gross Weight. 
-                                We can display it as Gross.
-                            */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Gross Weight</label>
                                 <div className="text-lg font-bold text-gray-900">{Number(formData.weight).toLocaleString()} kg</div>

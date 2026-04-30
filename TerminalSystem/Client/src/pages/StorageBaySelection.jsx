@@ -9,10 +9,8 @@ const StorageBaySelection = () => {
     const [bays, setBays] = useState([]);
     const [selectedBay, setSelectedBay] = useState(null);
 
-    // Mocking 10 Storage Bays for now, or fetching if API supports it.
-    // Since we don't have a specific API for "Storage Bays" separate from "Weigh Bays" yet,
-    // we'll mock the structure as requested (Bays 1-10).
-    // In a real scenario, we'd fetch from /api/Yard/bays and filter by type or range.
+    // Mocking 10 Storage Bays for now.
+    // we'll mock the structure as Bays 1-10.
     useEffect(() => {
         const fetchBays = async () => {
             try {

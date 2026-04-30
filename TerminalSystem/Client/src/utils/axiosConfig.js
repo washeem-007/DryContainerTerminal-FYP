@@ -21,14 +21,14 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor (optional) for handling auth errors globally
+// Response interceptor for handling auth errors globally
 api.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Handle unauthorized: clear token and redirect to login
+            // Handle the unauthorized by clearing the token and redirect to login
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';

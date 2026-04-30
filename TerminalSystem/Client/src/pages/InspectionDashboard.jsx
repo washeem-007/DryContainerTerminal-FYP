@@ -9,7 +9,7 @@ const InspectionCard = ({ bay, submitInspection, wharfClerks }) => {
         customOfficer: 'John Doe',
         inspectionType: 'Full Inspection',
         additionalCharges: '',
-        assignedWharfClerk: '' 
+        assignedWharfClerk: ''
     });
 
     useEffect(() => {
@@ -144,7 +144,7 @@ const InspectionDashboard = () => {
                 setBays(mapped);
             } catch (err) {
                 console.error(err);
-                // Don't auto generate 10 mock slots, just fallback gracefully to what we can.
+
             }
 
             try {

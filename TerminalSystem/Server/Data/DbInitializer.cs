@@ -8,7 +8,6 @@ namespace Server.Data
         {
             context.Database.EnsureCreated();
 
-            // Seed Users — always runs on startup, username-check prevents duplicates
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
                 string Hash(string pw) =>
@@ -65,7 +64,7 @@ namespace Server.Data
                     LocationName = $"I{i}",
                     IsOccupied = false,
                     CapacityTier = 1,
-                    BayNumber = i + 6, // Offset numbers to prevent unique constraint issues if any
+                    BayNumber = i + 6, // Offseting the numbers
                     BayType = "Inspection",
                     IsGreenLane = i <= 5 // First 5 inspection bays could be green lane? Adjust as needed
                 });

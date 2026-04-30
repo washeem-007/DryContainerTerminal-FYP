@@ -10,7 +10,6 @@ import React, { useState } from 'react';
  */
 export default function SmartContainerInput({ onChange, value: externalValue }) {
   const [displayValue, setDisplayValue] = useState(() => {
-    // If a controlled value is passed in, format it for display
     if (externalValue) {
       let v = externalValue.replace(/\s/g, '');
       if (v.length > 4) v = v.slice(0, 4) + ' ' + v.slice(4);
@@ -22,7 +21,7 @@ export default function SmartContainerInput({ onChange, value: externalValue }) 
   const [isValid, setIsValid] = useState(false);
 
   const handleInputChange = (e) => {
-    // 1. Strip everything except letters and numbers, force Uppercase
+    // 1. only allow letters and numbers, force Uppercase
     let rawValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
 
     // 2. Enforce the rules: First 4 MUST be letters, next 7 MUST be numbers
@@ -35,19 +34,19 @@ export default function SmartContainerInput({ onChange, value: externalValue }) 
       }
     }
 
-    // 3. Add visual spaces for readability (e.g., MSCU 123456 7)
+    // 3. Adding visual spaces for readability (e.g. format, MSCU 123456 7)
     let display = formatted;
-    if (formatted.length > 4)  display = formatted.slice(0, 4)  + ' ' + formatted.slice(4);
-    if (formatted.length > 10) display = display.slice(0, 11)   + ' ' + display.slice(11);
+    if (formatted.length > 4) display = formatted.slice(0, 4) + ' ' + formatted.slice(4);
+    if (formatted.length > 10) display = display.slice(0, 11) + ' ' + display.slice(11);
 
-    // 4. Check if it's completely valid (4 letters + space + 6 numbers + space + 1 number)
+    // 4. Check if it's completly valid (4 letters + space + 6 numbers + space + 1 number)
     const exactMatchRegex = /^[A-Z]{4} \d{6} \d{1}$/;
     const valid = exactMatchRegex.test(display);
 
     setDisplayValue(display);
     setIsValid(valid);
 
-    // Notify parent with the raw value (no spaces) and validity flag
+    // Notify the raw value (no spaces) and valdity flag
     if (onChange) {
       onChange(formatted, valid);
     }

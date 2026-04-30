@@ -16,14 +16,12 @@ namespace Server.Controllers
             _context = context;
         }
 
-        // GET: api/Invoices
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices()
         {
             return await _context.Invoices.Include(i => i.Inspection).ToListAsync();
         }
 
-        // POST: api/Invoices/pay/5
         [HttpPost("pay/{id}")]
         public async Task<IActionResult> PayInvoice(string id)
         {

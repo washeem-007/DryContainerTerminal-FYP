@@ -18,7 +18,7 @@ namespace Server.Models
         public bool HasWeightSlip { get; set; }
         public DateTime ArrivalTime { get; set; } = DateTime.UtcNow;
 
-        // Soft delete flag
+        
         public bool IsArchived { get; set; } = false;
 
         // Foreign Key to YardLocation (Nullable)

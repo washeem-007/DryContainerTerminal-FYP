@@ -6,7 +6,7 @@ import TopNavbar from '../components/TopNavbar';
 
 const WeighingForm = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Hook to access state
+    const location = useLocation();
     const [formData, setFormData] = useState({
         receiptNumber: '',
         containerId: '',
@@ -20,7 +20,6 @@ const WeighingForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Show the summary modal on form submit — API is only called after user confirms
     const handleSubmit = (e) => {
         e.preventDefault();
         setShowSummaryModal(true);

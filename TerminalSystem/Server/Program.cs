@@ -49,7 +49,7 @@ builder.Services.AddScoped<Server.Services.IAuthService, Server.Services.AuthSer
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//  HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

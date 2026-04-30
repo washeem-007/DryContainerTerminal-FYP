@@ -41,12 +41,12 @@ const StackOverview = () => {
         }
     };
 
-    // Derived statistics based on the 1-slot-per-stack backend constraint
+    // 1-slot-per-stack backend constraint
     const totalCapacity = stacks.length; // 5
     const occupiedStacks = stacks.filter(s => s.isOccupied).length;
     const availableStacks = totalCapacity - occupiedStacks;
     const avgUtilization = totalCapacity > 0 ? ((occupiedStacks / totalCapacity) * 100).toFixed(1) : 0;
-    const criticalStacks = occupiedStacks; // Since 1 occupied slot = 100% full (critical) in this mock mode
+    const criticalStacks = occupiedStacks; // Since 1 occupied slot = full 
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading...</div>;
@@ -151,12 +151,12 @@ const StackOverview = () => {
                                     <h3 className="text-xl font-bold text-gray-900">Stack {stack.stackLetter}</h3>
                                     <Layers className="w-5 h-5 text-gray-400" />
                                 </div>
-                                
+
                                 <div className={`w-full flex items-center gap-1.5 ${statusColor} mb-8`}>
                                     <Icon className="w-4 h-4" />
                                     <span className="text-xs font-semibold">{statusText}</span>
                                 </div>
-                                
+
                                 {/* Progress Bar Area */}
                                 <div className="w-full mb-8">
                                     <div className="flex justify-between items-end mb-2">

@@ -125,7 +125,7 @@ namespace Server.Controllers
                 existing.OriginPort = container.OriginPort;
                 existing.Shipper = container.Shipper;
                 existing.CurrentStatus = container.CurrentStatus;
-                existing.IsCleared = container.IsCleared; // Allow updates if needed, though strictly we override it at the top for newly crafted registrations manually. Actually, let's omit overriding it here if it's an update. Wait, Register is used for BOTH.
+                existing.IsCleared = container.IsCleared; 
                 existing.HasWeightSlip = container.HasWeightSlip;
                 existing.ArrivalTime = container.ArrivalTime;
 

@@ -56,7 +56,7 @@ const Dashboard = () => {
         { name: 'Occupied', value: stats.inspectionBays.occupied },
         { name: 'Available', value: stats.inspectionBays.available }
     ];
-    const COLORS = ['#2563EB', '#E5E7EB']; // Blue-600, Gray-200
+    const COLORS = ['#2563EB', '#E5E7EB'];
 
     const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
@@ -274,21 +274,19 @@ const Dashboard = () => {
                                                 </div>
                                             </td>
                                             <td className="py-4">
-                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${
-                                                    row.inspection === 'Active'  ? 'bg-teal-50 text-teal-700 border-teal-200' :
-                                                    row.inspection === 'Passed'  ? 'bg-green-50 text-green-700 border-green-200' :
-                                                    row.inspection === 'Failed'  ? 'bg-red-50 text-red-700 border-red-200' :
-                                                    'bg-gray-50 text-gray-600 border-gray-200'
-                                                }`}>
+                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${row.inspection === 'Active' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                                        row.inspection === 'Passed' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                            row.inspection === 'Failed' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                                'bg-gray-50 text-gray-600 border-gray-200'
+                                                    }`}>
                                                     {row.inspection}
                                                 </span>
                                             </td>
                                             <td className="py-4">
-                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${
-                                                    row.payment === 'Paid'    ? 'bg-green-50 text-green-700 border-green-200' :
-                                                    row.payment === 'Pending' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-                                                    'bg-gray-50 text-gray-600 border-gray-200'
-                                                }`}>
+                                                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${row.payment === 'Paid' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                        row.payment === 'Pending' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                                                            'bg-gray-50 text-gray-600 border-gray-200'
+                                                    }`}>
                                                     {row.payment}
                                                 </span>
                                             </td>
