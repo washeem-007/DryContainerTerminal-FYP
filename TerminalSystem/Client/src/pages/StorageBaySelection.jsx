@@ -19,6 +19,7 @@ const StorageBaySelection = () => {
                 const response = await api.get('/yard/bays?type=Inspection');
                 const mappedBays = response.data.map(b => ({
                     id: b.bayNumber,
+                    locationName: b.locationName,
                     status: b.isOccupied ? 'Unavailable' : 'Available',
                     isOccupied: b.isOccupied
                 }));
@@ -35,7 +36,7 @@ const StorageBaySelection = () => {
         if (bay.status === 'Available') {
             setSelectedBay(bay.id === selectedBay ? null : bay.id);
         } else {
-            if (window.confirm(`Bay ${bay.id} is occupied. Do you want to free this slot?`)) {
+            if (window.confirm(`Bay ${bay.locationName} is occupied. Do you want to free this slot?`)) {
                 try {
                     await api.post(`/yard/release/${bay.id}`);
                     setBays(bays.map(b => b.id === bay.id ? { ...b, status: 'Available', isOccupied: false } : b));
@@ -83,7 +84,7 @@ const StorageBaySelection = () => {
                                 }
                             `}
                         >
-                            <span className="text-3xl font-bold mb-2">Bay {bay.id}</span>
+                            <span className="text-3xl font-bold mb-2">Bay {bay.locationName}</span>
                             <span className="text-sm font-medium opacity-90">
                                 {bay.status === 'Unavailable' ? 'Unavailable' : selectedBay === bay.id ? 'Selected' : 'Available'}
                             </span>

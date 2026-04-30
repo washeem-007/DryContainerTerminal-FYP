@@ -9,7 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -27,13 +27,13 @@ const Login = () => {
                 username,
                 password
             });
-            
+
             // Expected response: { token: '...', username: '...', role: '...' }
             const { token, username: returnedUsername, role } = response.data;
-            
+
             // Save to AuthContext/localStorage
             login(token, { username: returnedUsername, role });
-            
+
             // Redirect based on role
             if (role === 'Wharf Clerk') {
                 navigate('/payments', { replace: true });
@@ -70,7 +70,7 @@ const Login = () => {
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 sm:rounded-2xl sm:px-10 border border-gray-100">
                     <form className="space-y-6" onSubmit={handleLogin}>
-                        
+
                         {error && (
                             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
                                 {error}
@@ -122,16 +122,6 @@ const Login = () => {
                             </button>
                         </div>
                     </form>
-                    
-                    <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center gap-2 text-xs text-gray-500 text-center">
-                         <span>Demo Usernames:</span>
-                         <span className="font-mono bg-gray-100 px-1 rounded">admin</span>
-                         <span className="font-mono bg-gray-100 px-1 rounded">gateclerk</span>
-                         <span className="font-mono bg-gray-100 px-1 rounded">supervisor</span>
-                         <span className="font-mono bg-gray-100 px-1 rounded">wharfclerk</span>
-                         <br/>
-                         <span>Password: password123</span>
-                    </div>
                 </div>
             </div>
         </div>

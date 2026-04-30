@@ -20,14 +20,12 @@ namespace Server.Services
             // Save the inspection
             _context.Inspections.Add(inspection);
 
-            // Scenario B: Pass/Fail Logic
+            // Pass/Fail Logic
             var container = await _context.Containers.FindAsync(inspection.ContainerId);
-            if (container == null) return; // Should handle not found
+            if (container == null) return; 
 
             if (inspection.Result == "Fail")
             {
-                // 1. Generate Invoice if applicable (e.g. random logic or based on request)
-                // Assuming always generate invoice on fail for now or if charges exist
                 if (inspection.AdditionalCharges > 0)
                 {
                     var invoice = new Invoice
@@ -40,19 +38,12 @@ namespace Server.Services
                     _context.Invoices.Add(invoice);
                 }
 
-                // 2. Move container?
-                // Example: If failed, maybe move to a "Quarantine" stack or Keep in Stack
-                // For simplicity, let's say we set IsCleared to false so it stays in Stack
                 container.IsCleared = false;
                 
-                // Optionally re-evaluate location (if we had a specific Quarantine area)
-                // await _yardService.DecideStorageLocationAsync(container); 
             }
             else if (inspection.Result == "Pass")
             {
-                // container.IsCleared = true; // DO NOT clear automatically
-                // Maybe move to Bay (Green Lane) since it is now cleared?
-                // await _yardService.DecideStorageLocationAsync(container);
+                
             }
             
             _context.Containers.Update(container);
@@ -63,7 +54,6 @@ namespace Server.Services
             var container = await _context.Containers.FindAsync(dto.ContainerId);
             if (container == null)
             {
-                // For demonstration, lazy create the container if it wasn't added at the gate
                 container = new Container
                 {
                     ContainerId = dto.ContainerId,
@@ -92,7 +82,7 @@ namespace Server.Services
                 Remarks = $"Officer: {dto.CustomOfficerName}, AssignedTo: {dto.AssignedWharfClerk}",
                 InspectedAt = DateTime.UtcNow,
                 ContainerId = dto.ContainerId,
-                OfficerId = 1 // Assuming 1 is Admin for now as a fallback since auth isn't deeply tied to OfficerId yet
+                OfficerId = 1 // Assuming 1 is Admin
             };
 
             _context.Inspections.Add(inspection);
@@ -122,15 +112,13 @@ namespace Server.Services
                 }
                 else
                 {
-                    container.CurrentLocationId = null; // No stack available, fallback
+                    container.CurrentLocationId = null; 
                 }
             }
             else if (dto.Status == "Pending")
             {
-                // Do not change Yard Locations
+               
             }
-
-            // Let EF Core's built-in change tracking handle the Updates
             await _context.SaveChangesAsync();
 
             return inspection;

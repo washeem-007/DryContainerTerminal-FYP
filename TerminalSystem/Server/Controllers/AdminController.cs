@@ -8,7 +8,7 @@ namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Default: Must be logged in at a minimum
+    [Authorize] 
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -95,7 +95,7 @@ namespace Server.Controllers
                     id = u.UserId, 
                     name = u.Username, 
                     role = u.Role, 
-                    status = "Active" // Mocking status since it doesn't exist in model
+                    status = "Active" 
                 }).ToListAsync();
             return Ok(users);
         }
@@ -146,7 +146,6 @@ namespace Server.Controllers
                 var container = await _context.Containers.FindAsync(id);
                 if (container == null) return NotFound(new { message = "Container not found." });
 
-                // If container is occupying a yard location, better free it up first!
                 if (container.CurrentLocationId.HasValue)
                 {
                     var location = await _context.YardLocations.FindAsync(container.CurrentLocationId);

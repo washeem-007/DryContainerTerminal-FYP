@@ -24,7 +24,7 @@ const InspectionCard = ({ bay, submitInspection, wharfClerks }) => {
 
     return (
         <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col h-full">
-            <div className="text-sm font-bold text-gray-800 mb-2">Bay {bay.bayNumber}</div>
+            <div className="text-sm font-bold text-gray-800 mb-2">Bay {bay.locationName || `I${bay.bayNumber - 6}`}</div>
 
             {isOccupied ? (
                 <div className="text-2xl font-bold text-gray-900 text-center mb-6">
@@ -136,6 +136,7 @@ const InspectionDashboard = () => {
                 const mapped = data.map(b => ({
                     locationId: b.locationId,
                     bayNumber: b.bayNumber,
+                    locationName: b.locationName,
                     isOccupied: b.isOccupied,
                     containerId: b.containerId || null
                 }));
