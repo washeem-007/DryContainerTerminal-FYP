@@ -39,7 +39,16 @@ The project can be fully run in the local machine as well. PortZen is fully cont
 *   Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed and running.
 
 ### 2. Launch
-Clone the repository and run the following command in the root directory (/TerminalSystem):
+Create a new folder, open the folder and run the below command
+```bash
+git clone https://github.com/washeem-007/DryContainerTerminal-FYP.git
+```
+Navigate to the below folder
+```bash
+Dry Container Terminal\TerminalSystem>
+```
+
+Run the following command in \TerminalSystem:
 ```bash
 docker-compose up --build
 ```
